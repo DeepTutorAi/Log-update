@@ -35,6 +35,7 @@
   --shadow-lg: 0 16px 48px rgba(0,0,0,.75);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
+[hidden] { display:none !important; }
 html { scroll-behavior:smooth; }
 
 body {
@@ -2269,6 +2270,8 @@ for (let i = 0; i < 44; i++) {
 }
 
 updateAdminVisibility();
+closeAdminModal();
+hideToast();
 renderUpdateLog();
 updateAudioSummary();
 setPreviewContent('');
