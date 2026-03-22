@@ -1,0 +1,2277 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Tick Scalper v2.0 — DFD Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0f0c07;
+  --bg2:     #171209;
+  --bg3:     #1e1810;
+  --bg4:     #262015;
+  --border:  #302618;
+  --border2: #3a2e1e;
+  --text:    #e2d4b8;
+  --muted:   #6a5c48;
+  --faint:   #352c1c;
+  --amber:   #c8942a;
+  --amber2:  #e0aa3c;
+  --amber3:  #f0c860;
+  --sage:    #4e7c5a;
+  --sage2:   #68a078;
+  --rust:    #9a3c2a;
+  --rust2:   #c05040;
+  --slate:   #3a5870;
+  --slate2:  #527898;
+  --warm:    #8a6840;
+  --cream:   #c8a870;
+  --font-hd: 'Playfair Display', Georgia, serif;
+  --font-bd: 'Crimson Pro', Georgia, serif;
+  --font-mn: 'DM Mono', 'Courier New', monospace;
+  --shadow-sm: 0 2px 10px rgba(0,0,0,.5);
+  --shadow-md: 0 6px 28px rgba(0,0,0,.6);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,.75);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-bd);
+  font-size: 16px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ══════════════════════════════════════
+   THEATRICAL BACKGROUND LAYERS
+══════════════════════════════════════ */
+
+/* 1. deep vignette base */
+.stage-bg {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(200,148,42,.04) 0%, transparent 65%),
+    radial-gradient(ellipse 100% 100% at 50% 100%, rgba(0,0,0,.7) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 80% at 0%   50%,  rgba(0,0,0,.5) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 80% at 100% 50%,  rgba(0,0,0,.5) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* 2. grain texture */
+.stage-grain {
+  position: fixed; inset: 0; z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* 3. SPOTLIGHT — main cone, sways gently */
+.spotlight {
+  position: fixed;
+  top: -190px;
+  left: 52%;
+  transform: translateX(-50%) rotate(-12deg);
+  width: 980px;
+  height: 125vh;
+  z-index: 2;
+  pointer-events: none;
+  animation: spotSway 14s ease-in-out infinite;
+  transform-origin: 50% 0;
+  mix-blend-mode: screen;
+  opacity: .95;
+}
+.spotlight::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 34% 10% at 48% 2%, rgba(255,230,170,.26) 0%, rgba(245,190,80,.16) 38%, transparent 78%),
+    conic-gradient(
+      from 194deg at 50% 0%,
+      transparent 0deg,
+      transparent 40deg,
+      rgba(220,165,55,.08) 58deg,
+      rgba(240,190,80,.18) 78deg,
+      rgba(255,220,140,.30) 92deg,
+      rgba(240,190,80,.18) 108deg,
+      rgba(220,165,55,.08) 126deg,
+      transparent 146deg,
+      transparent 360deg
+    ),
+    linear-gradient(100deg,
+      transparent 18%,
+      rgba(255,215,130,.04) 32%,
+      rgba(255,225,160,.18) 48%,
+      rgba(235,180,70,.14) 58%,
+      rgba(210,150,45,.05) 72%,
+      transparent 88%
+    );
+  filter: blur(28px);
+  transform: skewX(-16deg);
+  transform-origin: top center;
+}
+/* soft inner glow core */
+.spotlight::after {
+  content: '';
+  position: absolute;
+  top: 1vh; left: 47%;
+  transform: translateX(-50%) skewX(-16deg);
+  width: 340px;
+  height: 86vh;
+  background: linear-gradient(186deg,
+    rgba(255,225,155,.34) 0%,
+    rgba(245,190,80,.2) 18%,
+    rgba(225,165,55,.1) 46%,
+    rgba(205,150,45,.04) 68%,
+    transparent 100%
+  );
+  border-radius: 0 0 70% 55%;
+  filter: blur(34px);
+  box-shadow: 0 0 90px rgba(245,190,80,.14);
+}
+
+@keyframes spotSway {
+  0%   { transform: translateX(-50%) rotate(-12deg); }
+  24%  { transform: translateX(-47%) rotate(-8deg); }
+  52%  { transform: translateX(-53%) rotate(-15deg); }
+  76%  { transform: translateX(-49%) rotate(-9deg); }
+  100% { transform: translateX(-50%) rotate(-12deg); }
+}
+
+/* secondary faint side light */
+.spotlight-side {
+  position: fixed;
+  top: -120px; left: 8%;
+  width: 420px; height: 85vh;
+  z-index: 2; pointer-events: none;
+  animation: spotSway2 20s ease-in-out infinite;
+  transform-origin: top center;
+  mix-blend-mode: screen;
+  opacity: .8;
+}
+.spotlight-side::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: conic-gradient(
+    from 188deg at 42% 0%,
+    transparent 0deg,
+    transparent 56deg,
+    rgba(210,160,55,.035) 74deg,
+    rgba(230,180,70,.075) 92deg,
+    rgba(210,160,55,.035) 110deg,
+    transparent 132deg,
+    transparent 360deg
+  );
+  filter: blur(24px);
+  transform: skewX(-24deg);
+}
+@keyframes spotSway2 {
+  0%   { transform: rotate(14deg); }
+  40%  { transform: rotate(8deg); }
+  70%  { transform: rotate(17deg); }
+  100% { transform: rotate(14deg); }
+}
+
+/* 4. DUST PARTICLES — pure CSS */
+.dust-layer {
+  position: fixed; inset: 0; z-index: 3;
+  pointer-events: none; overflow: hidden;
+}
+.mote {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,215,120,1) 0%, rgba(235,185,70,.62) 48%, transparent 100%);
+  box-shadow: 0 0 10px rgba(240,195,70,.18);
+  animation: moteDrift linear infinite;
+  will-change: transform, opacity;
+}
+@keyframes moteDrift {
+  0%   { transform: translate(0, 0)         rotate(0deg);   opacity: var(--op0); }
+  20%  { transform: translate(var(--dx1), var(--dy1)) rotate(72deg);  opacity: var(--op1); }
+  40%  { transform: translate(var(--dx2), var(--dy2)) rotate(144deg); opacity: var(--op2); }
+  60%  { transform: translate(var(--dx3), var(--dy3)) rotate(216deg); opacity: var(--op1); }
+  80%  { transform: translate(var(--dx4), var(--dy4)) rotate(288deg); opacity: var(--op2); }
+  100% { transform: translate(0, 0)         rotate(360deg); opacity: var(--op0); }
+}
+
+/* heavier slow-drifting motes */
+.mote-slow {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(235,190,80,.72);
+  filter: blur(.5px);
+  box-shadow: 0 0 12px rgba(245,200,90,.16);
+  animation: moteFloat ease-in-out infinite;
+}
+@keyframes moteFloat {
+  0%,100% { transform: translateY(0)    translateX(0);   opacity: var(--fa); }
+  33%     { transform: translateY(-18px) translateX(6px); opacity: var(--fb); }
+  66%     { transform: translateY(-8px)  translateX(-5px); opacity: var(--fa); }
+}
+
+/* 5. beam shimmer — thin vertical glints */
+.beam-shimmer {
+  position: fixed;
+  top: -20px; left: 50%;
+  width: 3px; height: 58vh;
+  z-index: 2; pointer-events: none;
+  background: linear-gradient(185deg,
+    rgba(255,225,145,.55) 0%,
+    rgba(245,190,80,.18) 42%,
+    transparent 100%
+  );
+  filter: blur(2px);
+  transform-origin: top center;
+  animation: shimmerDrift 9s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+.beam-shimmer-left {
+  left: calc(50% - 88px);
+  animation-delay: -3s;
+  animation-duration: 11s;
+  opacity: .55;
+}
+.beam-shimmer-right {
+  left: calc(50% + 74px);
+  animation-delay: -6s;
+  animation-duration: 9s;
+  opacity: .45;
+}
+@keyframes shimmerDrift {
+  0%,100% { transform: rotate(-12deg) scaleX(1);   opacity:.85; }
+  50%     { transform: rotate(-7deg) scaleX(1.9); opacity:.42; }
+}
+
+/* ══════════════════════════════════════
+   HEADER
+══════════════════════════════════════ */
+header {
+  position: relative; z-index: 20;
+  padding: 34px 48px 26px;
+  border-bottom: 1px solid var(--border2);
+  background: linear-gradient(180deg, rgba(30,24,16,.97) 0%, rgba(23,18,9,.97) 100%);
+  display: flex; align-items: flex-end; gap: 32px;
+  animation: slideDown .7s cubic-bezier(.16,1,.3,1) both;
+  backdrop-filter: blur(2px);
+}
+@keyframes slideDown {
+  from { opacity:0; transform:translateY(-24px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.header-left { flex:1; }
+.header-left h1 {
+  font-family: var(--font-hd);
+  font-size: 28px; font-weight: 700;
+  color: var(--text); letter-spacing: .5px; line-height: 1.2;
+}
+.header-left h1 em { font-style:italic; color:var(--amber3); }
+.header-left p {
+  font-family: var(--font-mn);
+  font-size: 11px; color: var(--muted);
+  margin-top: 7px; letter-spacing: 1.8px;
+}
+.header-badge {
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  color: var(--amber3);
+  padding: 9px 22px;
+  font-family: var(--font-hd);
+  font-size: 13px; letter-spacing: 2px;
+  border-radius: 3px;
+  position: relative; overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease;
+}
+.header-badge:hover { transform: translateY(-1px); }
+.header-badge.is-unlocked {
+  border-color: var(--amber2);
+  box-shadow: 0 0 24px rgba(240,195,70,.18), inset 0 0 0 1px rgba(255,225,145,.1);
+}
+.header-badge::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(240,200,80,.14), transparent);
+  transform: translateX(-100%);
+  animation: badgeShimmer 4s ease-in-out infinite;
+}
+@keyframes badgeShimmer {
+  0%,35% { transform:translateX(-100%); }
+  65%    { transform:translateX(100%);  }
+  100%   { transform:translateX(100%);  }
+}
+
+.deco-line {
+  position: relative; z-index: 20;
+  height: 2px;
+  background: linear-gradient(90deg, var(--amber) 0%, var(--amber2) 18%, var(--sage) 52%, var(--slate) 78%, transparent 100%);
+  transform-origin: left;
+  animation: growLine 1.1s cubic-bezier(.16,1,.3,1) .2s both;
+}
+@keyframes growLine {
+  from { transform:scaleX(0); }
+  to   { transform:scaleX(1); }
+}
+
+/* ══════════════════════════════════════
+   TABS
+══════════════════════════════════════ */
+.tabs {
+  position: relative; z-index: 20;
+  display: flex; gap: 1px;
+  padding: 0 48px;
+  background: rgba(23,18,9,.98);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  backdrop-filter: blur(4px);
+}
+.tab {
+  padding: 14px 22px;
+  cursor: pointer;
+  font-family: var(--font-bd);
+  font-size: 15px; font-weight: 600;
+  color: var(--muted);
+  background: transparent; border: none;
+  border-bottom: 2px solid transparent;
+  transition: all .25s ease;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 8px;
+}
+.tab:hover { color: var(--cream); }
+.tab.active { color: var(--text); border-bottom-color: var(--tab-accent, var(--amber)); }
+.tab-num {
+  font-family: var(--font-mn); font-size: 10px;
+  background: var(--bg4); border-radius: 50%;
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .25s, color .25s;
+}
+.tab.active .tab-num { background: var(--tab-accent, var(--amber)); color: var(--bg); }
+
+/* ══════════════════════════════════════
+   MAIN
+══════════════════════════════════════ */
+main { position: relative; z-index: 10; padding: 40px 48px; max-width: 1200px; }
+
+.layer-panel { display: none; }
+.layer-panel.active {
+  display: block;
+  animation: fadeUp .45s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.layer-hd { display:flex; align-items:baseline; gap:14px; margin-bottom:8px; }
+.layer-hd h2 { font-family:var(--font-hd); font-size:22px; font-weight:700; color:var(--text); }
+.layer-hd h2 span { color: var(--accent, var(--amber3)); }
+.layer-desc { font-size:15px; color:var(--muted); margin-bottom:22px; font-style:italic; }
+
+.meta-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:26px; }
+.meta-tag {
+  font-family:var(--font-mn); font-size:11px;
+  padding:4px 12px; border:1px solid var(--border2);
+  border-radius:30px; color:var(--muted); background:var(--bg3);
+  animation:popIn .45s cubic-bezier(.34,1.56,.64,1) both;
+}
+.meta-tag b { color:var(--cream); }
+@keyframes popIn {
+  from { opacity:0; transform:scale(.82); }
+  to   { opacity:1; transform:scale(1); }
+}
+.meta-tag:nth-child(1){ animation-delay:.08s }
+.meta-tag:nth-child(2){ animation-delay:.14s }
+.meta-tag:nth-child(3){ animation-delay:.20s }
+
+/* ── FLOW WRAP ── */
+.flow-wrap {
+  background: rgba(23,18,9,.85);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 36px 28px;
+  box-shadow: var(--shadow-md);
+  overflow-x: auto;
+  position: relative;
+  backdrop-filter: blur(4px);
+}
+.flow-wrap::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, var(--accent,var(--amber)), transparent);
+  border-radius:12px 12px 0 0;
+  transform-origin:left;
+  animation:growLine .9s cubic-bezier(.16,1,.3,1) .1s both;
+}
+/* inner top glow on wrap */
+.flow-wrap::after {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:80px;
+  background:linear-gradient(180deg, rgba(200,148,42,.04) 0%, transparent 100%);
+  border-radius:12px 12px 0 0;
+  pointer-events:none;
+}
+.flow { display:flex; flex-direction:column; align-items:center; min-width:680px; }
+.flow-row {
+  display:flex; align-items:center; justify-content:center;
+  gap:10px; width:100%; flex-wrap:wrap;
+}
+
+/* ── NODE ── */
+.node {
+  position:relative; overflow:hidden;
+  padding:10px 16px;
+  border-radius:6px;
+  font-family:var(--font-mn); font-size:12px;
+  text-align:center;
+  border:1px solid var(--border2);
+  background: var(--bg3);
+  cursor:default;
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1),
+             box-shadow .22s ease, border-color .22s ease;
+  min-width:112px; line-height:1.45;
+  box-shadow: var(--shadow-sm);
+  animation:nodeIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes nodeIn {
+  from { opacity:0; transform:scale(.87) translateY(10px); }
+  to   { opacity:1; transform:scale(1)   translateY(0); }
+}
+.node:hover {
+  transform:translateY(-5px) scale(1.03);
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--node-accent,var(--amber)),
+              0 0 24px rgba(200,148,42,.18);
+  border-color:var(--node-accent,var(--amber));
+  z-index:5;
+}
+/* warm gold ripple */
+.node::after {
+  content:'';
+  position:absolute; inset:0;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(200,148,42,.2), transparent 65%);
+  opacity:0; transition:opacity .3s; pointer-events:none;
+}
+.node:hover::after { opacity:1; }
+.node small {
+  display:block; font-size:10px; color:var(--muted);
+  margin-top:3px; font-family:var(--font-bd); font-style:italic; white-space:normal;
+}
+
+.n-in    { --node-accent:var(--slate2);  border-color:rgba(58,88,112,.5);   color:var(--slate2); }
+.n-proc  { --node-accent:var(--amber2);  border-color:rgba(200,148,42,.32); color:var(--amber2); }
+.n-ai    { --node-accent:#9060b8;         border-color:rgba(120,80,150,.42); color:#c090e0; }
+.n-out   { --node-accent:var(--sage2);   border-color:rgba(78,124,90,.38);  color:var(--sage2); }
+.n-block { --node-accent:var(--rust2);   border-color:rgba(154,60,42,.5);   color:var(--rust2); background:rgba(154,60,42,.08); }
+.n-ext   { --node-accent:#9060b8;         border-color:rgba(120,80,150,.5);  color:#c090e0; background:rgba(120,80,150,.08); }
+.n-ok    { --node-accent:var(--sage2);   border-color:rgba(78,124,90,.5);   color:var(--sage2); background:rgba(78,124,90,.08); font-weight:600; }
+.n-warn  { --node-accent:var(--amber2);  border-color:rgba(200,148,42,.5);  color:var(--amber2); background:rgba(200,148,42,.08); }
+.n-key   {
+  --node-accent:var(--amber3);
+  border-color:var(--amber);
+  color:var(--amber3);
+  background:rgba(200,148,42,.1);
+  font-weight:600; font-size:13px; padding:12px 22px;
+  box-shadow: 0 0 22px rgba(200,148,42,.2), inset 0 1px 0 rgba(240,200,80,.1);
+}
+.n-deny  { --node-accent:var(--rust2); border-color:var(--rust); color:var(--rust2); background:rgba(154,60,42,.08); font-weight:600; font-size:13px; padding:12px 22px; }
+
+/* ── ARROWS ── */
+.arr { display:flex; flex-direction:column; align-items:center; margin:6px 0; }
+.arr-line {
+  width:1px; height:20px;
+  background:linear-gradient(180deg, var(--border2), var(--faint));
+  position:relative;
+}
+.arr-line:last-child::after {
+  content:'';
+  position:absolute; bottom:-1px; left:50%; transform:translateX(-50%);
+  border:5px solid transparent;
+  border-top-color: var(--muted); border-bottom:none;
+}
+.arr-label {
+  font-family:var(--font-mn); font-size:10px;
+  color:var(--muted); padding:1px 10px;
+  background:var(--bg3); border-radius:30px;
+  border:1px solid var(--border); margin:3px 0;
+}
+
+/* ── SUBGRAPH ── */
+.sub {
+  border:1px solid var(--border2);
+  border-radius:8px;
+  padding:18px 16px 14px;
+  background:rgba(30,24,16,.7);
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  position:relative;
+  box-shadow:inset 0 1px 0 rgba(200,148,42,.05);
+  transition:box-shadow .22s;
+}
+.sub:hover { box-shadow:inset 0 1px 0 rgba(200,148,42,.05), 0 4px 20px rgba(0,0,0,.5); }
+.sub-title {
+  position:absolute; top:-11px; left:14px;
+  background:var(--bg3);
+  padding:0 10px;
+  font-family:var(--font-mn); font-size:10px;
+  color:var(--muted); letter-spacing:1.5px; text-transform:uppercase;
+}
+
+/* ── CARDS ── */
+.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:24px; }
+@media(max-width:760px){ .info-grid { grid-template-columns:1fr; } }
+.info-full { grid-column:1/-1; }
+.card {
+  background: rgba(23,18,9,.9);
+  border:1px solid var(--border2);
+  border-radius:10px; padding:22px 24px;
+  box-shadow:var(--shadow-sm);
+  position:relative; overflow:hidden;
+  animation:cardIn .5s cubic-bezier(.16,1,.3,1) both;
+  backdrop-filter: blur(4px);
+}
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.card:nth-child(1){ animation-delay:.08s }
+.card:nth-child(2){ animation-delay:.16s }
+.card::after {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--card-accent,var(--amber));
+  transform:scaleX(0); transform-origin:left;
+  transition:transform .4s cubic-bezier(.16,1,.3,1);
+}
+.card:hover::after { transform:scaleX(1); }
+.card::before {
+  content:'';
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse 80% 50% at 50% 0%, rgba(200,148,42,.05), transparent);
+  opacity:0; transition:opacity .4s; pointer-events:none;
+}
+.card:hover::before { opacity:1; }
+.card h3 {
+  font-family:var(--font-hd); font-size:13px; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--muted);
+  margin-bottom:14px; padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+table { width:100%; border-collapse:collapse; }
+td { padding:8px 0; font-size:15px; border-bottom:1px solid var(--border); vertical-align:top; }
+td:first-child { font-family:var(--font-mn); font-size:11px; color:var(--muted); width:36%; padding-right:12px; }
+tr:last-child td { border-bottom:none; }
+.pill { display:inline-block; padding:2px 10px; border-radius:30px; font-size:12px; font-family:var(--font-mn); }
+.p-amber  { background:rgba(200,148,42,.15); color:var(--amber3); border:1px solid rgba(200,148,42,.35); }
+.p-sage   { background:rgba(78,124,90,.13);  color:var(--sage2);  border:1px solid rgba(78,124,90,.3); }
+.p-rust   { background:rgba(154,60,42,.13);  color:var(--rust2);  border:1px solid rgba(154,60,42,.3); }
+.p-slate  { background:rgba(58,88,112,.13);  color:var(--slate2); border:1px solid rgba(58,88,112,.3); }
+.p-purple { background:rgba(120,80,150,.13); color:#c090e0;       border:1px solid rgba(120,80,150,.3); }
+
+/* ── OVERVIEW ── */
+.ov-stack { display:flex; flex-direction:column; align-items:center; }
+.ov-block {
+  width:460px; max-width:100%;
+  border:1px solid var(--border2);
+  border-radius:10px; padding:18px 24px;
+  background: rgba(30,24,16,.85);
+  display:flex; align-items:center; gap:18px;
+  box-shadow:var(--shadow-sm);
+  cursor:pointer;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1),
+             box-shadow .25s ease, border-color .25s ease;
+  animation:ovIn .55s cubic-bezier(.16,1,.3,1) both;
+}
+.ov-block.static { cursor:default; }
+.ov-block:not(.static):hover {
+  transform:translateY(-5px);
+  box-shadow:var(--shadow-lg), 0 0 28px rgba(200,148,42,.15);
+  border-color:var(--ov-accent,var(--amber));
+}
+@keyframes ovIn {
+  from { opacity:0; transform:scale(.93) translateY(12px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.ov-block:nth-child(1){ animation-delay:.04s }
+.ov-block:nth-child(3){ animation-delay:.10s }
+.ov-block:nth-child(5){ animation-delay:.16s }
+.ov-block:nth-child(7){ animation-delay:.22s }
+.ov-block:nth-child(9){ animation-delay:.28s }
+.ov-block:nth-child(11){ animation-delay:.34s }
+.ov-num {
+  width:40px; height:40px; border-radius:50%;
+  border:2px solid var(--ov-accent,var(--amber));
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-hd); font-size:16px; font-weight:700;
+  color:var(--ov-accent,var(--amber)); flex-shrink:0;
+  transition:background .22s, color .22s;
+}
+.ov-block:not(.static):hover .ov-num { background:var(--ov-accent,var(--amber)); color:var(--bg); }
+.ov-label { font-family:var(--font-hd); font-size:15px; color:var(--text); }
+.ov-sub   { font-size:13px; color:var(--muted); margin-top:3px; font-style:italic; }
+.ov-conn  { display:flex; flex-direction:column; align-items:center; margin:3px 0; }
+.ov-conn-line { width:1px; height:20px; background:var(--border2); }
+.ov-conn-chip {
+  font-family:var(--font-mn); font-size:10px;
+  color:var(--muted); background:var(--bg3);
+  border:1px solid var(--border); border-radius:30px;
+  padding:2px 12px; margin:3px 0;
+}
+
+/* ── ZONES ── */
+.zone-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:14px; }
+.zone-card {
+  flex:1; min-width:100px; border-radius:8px; padding:14px;
+  text-align:center;
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s;
+}
+.zone-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); }
+.zone-card .z-name { font-family:var(--font-hd); font-size:15px; font-weight:600; margin-bottom:4px; }
+.zone-card .z-trig { font-family:var(--font-mn); font-size:11px; opacity:.65; }
+.zone-card .z-act  { font-size:13px; margin-top:6px; font-style:italic; }
+.zg { background:rgba(78,124,90,.1);  border:1px solid rgba(78,124,90,.3);  color:var(--sage2); }
+.zy { background:rgba(190,170,50,.08); border:1px solid rgba(190,170,50,.3); color:#c8b840; }
+.zo { background:rgba(170,110,30,.1);  border:1px solid rgba(170,110,30,.3); color:var(--amber2); }
+.zr { background:rgba(154,60,42,.1);   border:1px solid rgba(154,60,42,.3);  color:var(--rust2); }
+
+/* ── STEP FLOW ── */
+.step-flow { display:flex; flex-direction:column; margin-top:12px; }
+.step {
+  display:flex; align-items:flex-start; gap:14px;
+  padding:10px 0; border-bottom:1px solid var(--border);
+}
+.step:last-child { border-bottom:none; }
+.step-num {
+  width:26px; height:26px; border-radius:50%;
+  background:var(--bg4); border:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mn); font-size:11px;
+  color:var(--muted); flex-shrink:0;
+  transition:background .2s, color .2s, border-color .2s, box-shadow .2s;
+}
+.step:hover .step-num { background:var(--amber); color:var(--bg); border-color:var(--amber); box-shadow: 0 0 10px rgba(200,148,42,.4); }
+.step-text { font-size:15px; padding-top:3px; line-height:1.4; }
+.step-text b { color:var(--amber3); }
+
+.update-log-layout {
+  display:grid;
+  grid-template-columns:minmax(0, 1.7fr) minmax(280px, .85fr);
+  gap:20px;
+}
+.update-side-stack { display:flex; flex-direction:column; gap:20px; }
+.update-log-feed { display:flex; flex-direction:column; gap:18px; }
+.update-log-empty {
+  padding:22px 24px;
+  border:1px dashed var(--border2);
+  border-radius:12px;
+  color:var(--muted);
+  background:rgba(30,24,16,.55);
+}
+.update-entry {
+  padding:22px 24px;
+  border-radius:12px;
+  border:1px solid var(--border2);
+  background:linear-gradient(180deg, rgba(32,25,16,.96) 0%, rgba(20,16,10,.92) 100%);
+  box-shadow:var(--shadow-sm);
+}
+.update-entry.latest {
+  border-color:rgba(82,120,152,.5);
+  box-shadow:var(--shadow-md), 0 0 0 1px rgba(82,120,152,.18);
+}
+.update-entry h3 {
+  font-family:var(--font-hd);
+  font-size:24px;
+  color:var(--text);
+  margin-bottom:14px;
+}
+.update-entry__meta {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:14px;
+  font-family:var(--font-mn);
+  font-size:11px;
+  letter-spacing:1px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+.update-chip {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 12px;
+  border-radius:999px;
+  border:1px solid rgba(82,120,152,.45);
+  background:rgba(82,120,152,.12);
+  color:var(--slate2);
+}
+.update-summary {
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.status-line {
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  padding:10px 0;
+  border-bottom:1px solid var(--border);
+}
+.status-line:last-child { border-bottom:none; }
+.status-k {
+  font-family:var(--font-mn);
+  font-size:11px;
+  letter-spacing:1px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+.status-line b {
+  color:var(--text);
+  text-align:right;
+  font-size:14px;
+}
+.update-note {
+  margin-top:16px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.65;
+}
+
+.ghost-btn,
+.admin-btn,
+.secret-admin-btn {
+  border:1px solid var(--border2);
+  border-radius:999px;
+  padding:11px 16px;
+  font-family:var(--font-mn);
+  font-size:11px;
+  letter-spacing:1.3px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+}
+.ghost-btn {
+  background:rgba(23,18,9,.75);
+  color:var(--text);
+}
+.ghost-btn:hover {
+  transform:translateY(-1px);
+  border-color:var(--amber2);
+  box-shadow:0 8px 24px rgba(0,0,0,.32);
+}
+.admin-btn {
+  background:linear-gradient(135deg, rgba(240,195,70,.18) 0%, rgba(200,148,42,.22) 100%);
+  border-color:rgba(240,195,70,.42);
+  color:var(--amber3);
+  box-shadow:0 10px 28px rgba(0,0,0,.28);
+}
+.admin-btn:hover {
+  transform:translateY(-1px);
+  box-shadow:0 14px 34px rgba(0,0,0,.34), 0 0 0 1px rgba(240,195,70,.12);
+}
+
+.secret-admin-btn {
+  position:fixed;
+  right:24px;
+  bottom:24px;
+  z-index:60;
+  background:linear-gradient(135deg, rgba(32,25,16,.96) 0%, rgba(54,40,18,.96) 100%);
+  color:var(--amber3);
+  box-shadow:0 18px 40px rgba(0,0,0,.46), 0 0 0 1px rgba(240,195,70,.16);
+  opacity:0;
+  transform:translateY(18px) scale(.94);
+  pointer-events:none;
+}
+.secret-admin-btn.is-visible {
+  opacity:1;
+  transform:translateY(0) scale(1);
+  pointer-events:auto;
+}
+.secret-admin-btn:hover {
+  border-color:var(--amber2);
+  box-shadow:0 24px 48px rgba(0,0,0,.52), 0 0 28px rgba(240,195,70,.16);
+}
+
+.update-toast {
+  position:fixed;
+  top:24px;
+  right:24px;
+  z-index:70;
+  width:min(380px, calc(100vw - 32px));
+  padding:18px 18px 16px;
+  border-radius:16px;
+  border:1px solid rgba(82,120,152,.44);
+  background:linear-gradient(180deg, rgba(20,18,14,.96) 0%, rgba(14,12,8,.94) 100%);
+  box-shadow:var(--shadow-lg), 0 0 40px rgba(82,120,152,.16);
+  backdrop-filter:blur(12px);
+}
+.update-toast__eyebrow,
+.admin-modal__eyebrow {
+  font-family:var(--font-mn);
+  font-size:11px;
+  letter-spacing:2px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+.update-toast__title {
+  font-family:var(--font-hd);
+  font-size:22px;
+  line-height:1.2;
+  color:var(--text);
+  margin:10px 0 8px;
+}
+.update-toast__body {
+  color:var(--muted);
+  line-height:1.6;
+  font-size:14px;
+}
+.update-toast__actions {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+
+.admin-modal {
+  position:fixed;
+  inset:0;
+  z-index:80;
+  display:grid;
+  place-items:center;
+  padding:24px;
+}
+.admin-modal__backdrop {
+  position:absolute;
+  inset:0;
+  background:rgba(6,4,2,.78);
+  backdrop-filter:blur(8px);
+}
+.admin-modal__panel {
+  position:relative;
+  width:min(1180px, 100%);
+  max-height:calc(100vh - 48px);
+  overflow:auto;
+  border-radius:18px;
+  border:1px solid var(--border2);
+  background:linear-gradient(180deg, rgba(24,20,13,.98) 0%, rgba(16,13,9,.98) 100%);
+  box-shadow:var(--shadow-lg), 0 0 60px rgba(0,0,0,.35);
+  padding:24px;
+}
+.admin-modal__head {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:18px;
+  margin-bottom:18px;
+}
+.admin-modal__head h3 {
+  font-family:var(--font-hd);
+  font-size:28px;
+  color:var(--text);
+  margin:8px 0 6px;
+}
+.admin-modal__head p {
+  color:var(--muted);
+  line-height:1.6;
+  max-width:620px;
+}
+.admin-modal__grid {
+  display:grid;
+  grid-template-columns:minmax(0, 1.08fr) minmax(0, .92fr);
+  gap:18px;
+}
+.admin-section {
+  background:rgba(30,24,16,.78);
+  border:1px solid var(--border2);
+  border-radius:14px;
+  padding:18px;
+  box-shadow:var(--shadow-sm);
+}
+.admin-side-stack {
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.admin-field {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-bottom:14px;
+}
+.admin-field label {
+  font-family:var(--font-mn);
+  font-size:11px;
+  letter-spacing:1.2px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+.admin-field input,
+.admin-field textarea {
+  width:100%;
+  border-radius:10px;
+  border:1px solid var(--border2);
+  background:rgba(16,13,9,.92);
+  color:var(--text);
+  padding:12px 14px;
+  outline:none;
+  transition:border-color .2s ease, box-shadow .2s ease;
+}
+.admin-field input:focus,
+.admin-field textarea:focus {
+  border-color:rgba(240,195,70,.42);
+  box-shadow:0 0 0 3px rgba(240,195,70,.08);
+}
+.admin-field input {
+  font-family:var(--font-bd);
+  font-size:16px;
+}
+.admin-field textarea {
+  min-height:320px;
+  resize:vertical;
+  font-family:var(--font-bd);
+  font-size:15px;
+  line-height:1.7;
+}
+#playlistInput { min-height:164px; }
+.admin-actions {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.audio-hint {
+  margin-top:14px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+
+.markdown-body {
+  color:var(--text);
+  line-height:1.8;
+  font-size:16px;
+}
+.markdown-body > :first-child { margin-top:0; }
+.markdown-body > :last-child { margin-bottom:0; }
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  font-family:var(--font-hd);
+  color:var(--text);
+  line-height:1.25;
+  margin:1.25em 0 .5em;
+}
+.markdown-body p,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body blockquote,
+.markdown-body pre,
+.markdown-body table,
+.markdown-body hr {
+  margin:0 0 1em;
+}
+.markdown-body ul,
+.markdown-body ol { padding-left:22px; }
+.markdown-body li + li { margin-top:.35em; }
+.markdown-body a { color:var(--slate2); }
+.markdown-body blockquote {
+  padding:0 0 0 16px;
+  border-left:3px solid rgba(240,195,70,.4);
+  color:var(--cream);
+}
+.markdown-body code {
+  font-family:var(--font-mn);
+  font-size:.9em;
+  padding:.15em .38em;
+  border-radius:6px;
+  background:rgba(58,88,112,.18);
+  color:#c8def0;
+}
+.markdown-body pre {
+  padding:16px;
+  border-radius:12px;
+  overflow:auto;
+  background:rgba(8,8,8,.48);
+  border:1px solid rgba(58,88,112,.3);
+}
+.markdown-body pre code {
+  padding:0;
+  background:none;
+  color:inherit;
+}
+.markdown-body hr {
+  border:none;
+  border-top:1px solid var(--border2);
+}
+.markdown-body table {
+  width:100%;
+  border-collapse:collapse;
+}
+.markdown-body th,
+.markdown-body td {
+  border:1px solid var(--border);
+  padding:10px 12px;
+  text-align:left;
+}
+.markdown-body th {
+  background:rgba(30,24,16,.84);
+  font-family:var(--font-mn);
+  font-size:11px;
+  letter-spacing:1px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+
+body.admin-open { overflow:hidden; }
+
+@media(max-width:980px) {
+  .update-log-layout,
+  .admin-modal__grid { grid-template-columns:1fr; }
+}
+@media(max-width:760px) {
+  header {
+    padding:28px 20px 22px;
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .tabs { padding:0 20px; }
+  main { padding:28px 20px 40px; }
+  .secret-admin-btn,
+  .update-toast {
+    right:16px;
+    left:16px;
+    width:auto;
+  }
+  .secret-admin-btn { bottom:16px; }
+  .admin-modal { padding:16px; }
+  .admin-modal__panel { max-height:calc(100vh - 32px); padding:18px; }
+  .admin-modal__head { flex-direction:column; }
+}
+
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+</style>
+</head>
+<body>
+
+<!-- ── THEATRICAL BG LAYERS ── -->
+<div class="stage-bg"></div>
+<div class="stage-grain"></div>
+
+<!-- spotlight cone -->
+<div class="spotlight"></div>
+<div class="spotlight-side"></div>
+
+<!-- beam shimmers -->
+<div class="beam-shimmer"></div>
+<div class="beam-shimmer beam-shimmer-left"></div>
+<div class="beam-shimmer beam-shimmer-right"></div>
+
+<!-- dust -->
+<div class="dust-layer" id="dustLayer"></div>
+
+<!-- ── UI ── -->
+<header>
+  <div class="header-left">
+    <h1>Quantum Tick Scalper &mdash; <em>DFD Reference</em></h1>
+    <p>DATA FLOW DIAGRAM &middot; LEVEL 2 &middot; XAUUSD EXPERT ADVISOR</p>
+  </div>
+  <div class="header-badge" id="versionBadge">VERSION 2.0</div>
+</header>
+<div class="deco-line"></div>
+
+<div class="tabs">
+  <div class="tab active"  style="--tab-accent:var(--amber)"  onclick="show(0)">🗺 Overview</div>
+  <div class="tab" style="--tab-accent:var(--amber2)"         onclick="show(1)"><span class="tab-num">1</span>🔬 Signal Engine</div>
+  <div class="tab" style="--tab-accent:#9060b8"               onclick="show(2)"><span class="tab-num">2</span>🧠 AI Layer</div>
+  <div class="tab" style="--tab-accent:var(--rust)"           onclick="show(3)"><span class="tab-num">3</span>🛡 Risk Gate</div>
+  <div class="tab" style="--tab-accent:var(--sage)"           onclick="show(4)"><span class="tab-num">4</span>📋 Order Manager</div>
+  <div class="tab" style="--tab-accent:var(--slate2)"         onclick="show(5)"><span class="tab-num">5</span>📝 Update Log</div>
+</div>
+
+<main>
+
+<!-- ═══════════ OVERVIEW ═══════════ -->
+<div class="layer-panel active" id="p0">
+  <div class="layer-hd"><h2>System <span>Overview</span></h2></div>
+  <p class="layer-desc">Cross-layer data flow — คลิกแต่ละ block เพื่อดู detail</p>
+  <div class="flow-wrap" style="--accent:var(--amber)">
+    <div class="ov-stack">
+      <div class="ov-block static" style="--ov-accent:var(--warm)">
+        <div class="ov-num" style="border-color:var(--warm);color:var(--warm)">●</div>
+        <div><div class="ov-label">Market Tick</div><div class="ov-sub">price · volume · time · spread</div></div>
+      </div>
+      <div class="ov-conn"><div class="ov-conn-line"></div><div class="ov-conn-chip">tick stream</div><div class="ov-conn-line"></div></div>
+      <div class="ov-block" style="--ov-accent:var(--amber2)" onclick="show(1)">
+        <div class="ov-num">1</div>
+        <div><div class="ov-label">🔬 Signal Engine</div><div class="ov-sub">Score (0–100) + Reversal flag</div></div>
+      </div>
+      <div class="ov-conn"><div class="ov-conn-line"></div><div class="ov-conn-chip">score + context</div><div class="ov-conn-line"></div></div>
+      <div class="ov-block" style="--ov-accent:#9060b8" onclick="show(2)">
+        <div class="ov-num" style="border-color:#9060b8;color:#9060b8">2</div>
+        <div><div class="ov-label">🧠 AI Layer</div><div class="ov-sub">Direction + Confidence + Burst / Synergy</div></div>
+      </div>
+      <div class="ov-conn"><div class="ov-conn-line"></div><div class="ov-conn-chip">direction + AI signals</div><div class="ov-conn-line"></div></div>
+      <div class="ov-block" style="--ov-accent:var(--rust)" onclick="show(3)">
+        <div class="ov-num" style="border-color:var(--rust);color:var(--rust)">3</div>
+        <div><div class="ov-label">🛡 Risk Gate</div><div class="ov-sub">ALLOW ✅ / DENY 🚫 + Zone State</div></div>
+      </div>
+      <div class="ov-conn"><div class="ov-conn-line"></div><div class="ov-conn-chip">entry permission + lot size</div><div class="ov-conn-line"></div></div>
+      <div class="ov-block" style="--ov-accent:var(--sage2)" onclick="show(4)">
+        <div class="ov-num" style="border-color:var(--sage);color:var(--sage)">4</div>
+        <div><div class="ov-label">📋 Order Manager</div><div class="ov-sub">New Entry · DCA · Scale-in · Rescue · Burst</div></div>
+      </div>
+      <div class="ov-conn"><div class="ov-conn-line"></div><div class="ov-conn-chip">orders → broker</div><div class="ov-conn-line"></div></div>
+      <div class="ov-block static" style="--ov-accent:var(--slate)">
+        <div class="ov-num" style="border-color:var(--slate);color:var(--slate)">⚙</div>
+        <div><div class="ov-label">Position Manager · Reflection Engine</div><div class="ov-sub">Logger (NDJSON) → SQLite → Dashboard</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="info-grid">
+    <div class="card info-full" style="--card-accent:var(--amber)">
+      <h3>Signal Lineage — สรุปการไหลของข้อมูล</h3>
+      <table>
+        <tr><td>Tick → Score</td><td>Signal Engine คำนวณ velocity · ATR · regime รวมเป็น score 0–100</td></tr>
+        <tr><td>Score → AI</td><td>Prefilter ตรวจว่าคุ้มค่า call API ไหม → ส่งให้ Gemini หากผ่าน</td></tr>
+        <tr><td>AI → Gate</td><td>Direction + Confidence ส่งเข้า Risk Gate ก่อน entry</td></tr>
+        <tr><td>Gate → Order</td><td>ALLOW พร้อม lot size ที่ปรับตาม zone แล้วส่งให้ Order Manager</td></tr>
+        <tr><td>Reversal path</td><td>Signal Engine → Rescue Reversal โดยตรง (bypass AI layer)</td></tr>
+        <tr><td>Log</td><td>ทุก order มี signal lineage บันทึกที่ QTS_live_log.ndjson</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SIGNAL ENGINE ═══════════ -->
+<div class="layer-panel" id="p1">
+  <div class="layer-hd"><h2>🔬 Signal <span style="color:var(--amber2)">Engine</span></h2></div>
+  <p class="layer-desc">แปลง raw tick stream ให้กลายเป็น Signal Score (0–100) และ Reversal flag</p>
+  <div class="meta-row">
+    <div class="meta-tag"><b>INPUT</b> Tick stream, Session gate</div>
+    <div class="meta-tag"><b>OUTPUT</b> Signal Score (0–100), Reversal Signal</div>
+    <div class="meta-tag"><b>FILE</b> SignalEngine.mqh</div>
+  </div>
+  <div class="flow-wrap" style="--accent:var(--amber2)">
+    <div class="flow">
+      <div class="flow-row">
+        <div class="node n-in">🎯 Raw Tick Stream<small>price · volume · time</small></div>
+        <div class="node n-in">🚦 Session Gate<small>passed ✅</small></div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">Tick Velocity Processor</div>
+        <div class="flow-row">
+          <div class="node n-proc">Tick/sec Calculator<small>window-based</small></div>
+          <div class="node n-proc">Volume Delta<small>buy vs sell pressure</small></div>
+          <div class="node n-proc">Spread Checker<small>filter high spread</small></div>
+        </div>
+        <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+        <div class="flow-row">
+          <div class="node n-warn">Velocity Score<small>0.0 – 1.0</small></div>
+          <div class="node n-block">🚫 Block Signal<small>spread BAD</small></div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">ATR & Regime Processor</div>
+        <div class="flow-row">
+          <div class="node n-proc">ATR Calculator<small>period-based</small></div>
+          <div class="node n-proc">Regime Detector<small>TREND · RANGE · VOLATILE</small></div>
+          <div class="node n-proc">ATR Normalizer<small>scale ตาม regime</small></div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">Composite Score Engine</div>
+        <div class="flow-row">
+          <div class="node n-proc">Weight Mixer<small>velocity×w1 + atr×w2 + regime×w3</small></div>
+          <div class="node n-proc">Dynamic Threshold<small>Adaptive Intelligence</small></div>
+          <div class="node n-proc">Confirmation Tick<small>FAST · LEGACY mode</small></div>
+        </div>
+        <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+        <div class="node n-key">⭐ Final Signal Score &nbsp; 0 – 100</div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-label">score out</div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">Reversal Detector</div>
+        <div class="flow-row">
+          <div class="node n-proc">Direction Tracker<small>current open side</small></div>
+          <div class="node n-proc">Flip Detector<small>สัญญาณสวนฝั่ง</small></div>
+          <div class="node n-proc">Reversal Gate<small>ต้องผ่าน score min</small></div>
+          <div class="node n-ok">Reversal Signal ✅</div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="flow-row">
+        <div class="node n-out">→ AI Prefilter</div>
+        <div class="node n-out">→ Risk Gate</div>
+        <div class="node n-out">→ Rescue Reversal</div>
+      </div>
+    </div>
+  </div>
+  <div class="info-grid">
+    <div class="card" style="--card-accent:var(--amber)">
+      <h3>Component Behavior</h3>
+      <table>
+        <tr><td>Spread Checker</td><td>block ทันที ถ้า spread > <span class="pill p-amber">InpMaxSpread</span></td></tr>
+        <tr><td>Weight Mixer</td><td>ถ่วง 3 ตัว: velocity / ATR / regime</td></tr>
+        <tr><td>Threshold</td><td>Adaptive Intelligence ปรับ runtime อัตโนมัติ</td></tr>
+        <tr><td>Conf. Tick</td><td><span class="pill p-amber">FAST</span> = ยอมรับเร็ว &nbsp;<span class="pill p-purple">LEGACY</span> = conservative</td></tr>
+      </table>
+    </div>
+    <div class="card" style="--card-accent:var(--sage)">
+      <h3>Output Summary</h3>
+      <table>
+        <tr><td>Signal Score</td><td>ค่า 0–100 บอกความแข็งแกร่งของสัญญาณ</td></tr>
+        <tr><td>Reversal Flag</td><td>trigger ให้ Rescue Reversal เปิดฝั่งตรงข้าม</td></tr>
+        <tr><td>Block path</td><td>spread BAD → หยุดทุก path ทันที</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ AI LAYER ═══════════ -->
+<div class="layer-panel" id="p2">
+  <div class="layer-hd"><h2>🧠 AI <span style="color:#c090e0">Layer</span></h2></div>
+  <p class="layer-desc">กรอง signal ด้วย Gemini, ออก direction + confidence และสั่ง Burst / Synergy</p>
+  <div class="meta-row">
+    <div class="meta-tag"><b>INPUT</b> Signal Score, Spread, Market Context</div>
+    <div class="meta-tag"><b>OUTPUT</b> Direction, Confidence, Burst, Synergy</div>
+    <div class="meta-tag"><b>MODEL</b> gemini-2.5-flash-lite-preview</div>
+  </div>
+  <div class="flow-wrap" style="--accent:#9060b8">
+    <div class="flow">
+      <div class="flow-row">
+        <div class="node n-in">📊 Signal Score</div>
+        <div class="node n-in">📐 Spread Value</div>
+        <div class="node n-in">🌐 Market Context<small>regime + ATR</small></div>
+        <div class="node n-ext">🤖 Gemini API<small>gemini-2.5-flash-lite</small></div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">AI Prefilter</div>
+        <div class="flow-row">
+          <div class="node n-proc">Spread Evaluator<small>สูงเกิน threshold?</small></div>
+          <div class="node n-proc">Context Strength<small>สัญญาณอ่อนเกิน?</small></div>
+          <div class="node n-proc">Cost Gate<small>คุ้มค่า API call?</small></div>
+        </div>
+        <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+        <div class="flow-row">
+          <div class="node n-ok">Prefilter Pass ✅<small>เรียก API</small></div>
+          <div class="node n-warn">Skip → Local<small>ประหยัด cost</small></div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">API Call Manager</div>
+        <div class="flow-row">
+          <div class="node n-ai">Prompt Builder<small>price · regime · score</small></div>
+          <div class="node n-ai">HTTP Request<small>WebRequest MT5</small></div>
+          <div class="node n-ai">Timeout Handler</div>
+          <div class="node n-ai">Response Parser<small>BULL · BEAR · RANGE + conf</small></div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">AI Trust Manager</div>
+        <div class="flow-row">
+          <div class="node n-proc">Failure Counter</div>
+          <div class="node n-warn">Degraded Mode<small>fallback local</small></div>
+          <div class="node n-proc">Recovery Check</div>
+          <div class="node n-key" style="font-size:12px;padding:10px 16px">Trust Level<small>HIGH · MED · LOW · DEGRADED</small></div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">AI Decision Router</div>
+        <div class="flow-row">
+          <div class="node n-ai">Direction Output<small>BULL · BEAR · RANGE</small></div>
+          <div class="node n-ai">Confidence Score<small>0 – 100%</small></div>
+        </div>
+        <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+        <div class="flow-row" style="align-items:flex-start;gap:14px">
+          <div class="sub" style="flex:1">
+            <div class="sub-title">🔥 Burst Mode</div>
+            <div class="node n-proc" style="margin-bottom:8px">Dual Gate<small>conf ≥ 88% AND setup ≥ 75%</small></div>
+            <div class="node n-ok">Burst Signal ✅<small>2 extra lots</small></div>
+          </div>
+          <div class="sub" style="flex:1.5">
+            <div class="sub-title">🔗 Synergy Outputs</div>
+            <div class="flow-row" style="flex-wrap:wrap">
+              <div class="node n-proc" style="min-width:82px">Lot Boost<small>+5–15%</small></div>
+              <div class="node n-proc" style="min-width:82px">Trail Widen<small>+25%</small></div>
+              <div class="node n-proc" style="min-width:82px">Partial Hold</div>
+              <div class="node n-proc" style="min-width:82px">Fast BE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="flow-row">
+        <div class="node n-out">→ Risk Gate</div>
+        <div class="node n-out">→ Order Manager</div>
+        <div class="node n-out">→ Position Manager</div>
+        <div class="node n-out">→ Logger</div>
+      </div>
+    </div>
+  </div>
+  <div class="info-grid">
+    <div class="card" style="--card-accent:#9060b8">
+      <h3>Trust Level Behavior</h3>
+      <table>
+        <tr><td>HIGH</td><td><span class="pill p-sage">ACTIVE</span> API ปกติ, weight เต็ม</td></tr>
+        <tr><td>MED</td><td><span class="pill p-amber">PARTIAL</span> API แต่ weight ลด</td></tr>
+        <tr><td>LOW</td><td><span class="pill p-slate">CAUTION</span> local signal เป็นหลัก</td></tr>
+        <tr><td>DEGRADED</td><td><span class="pill p-rust">FALLBACK</span> AI offline, local ล้วน</td></tr>
+      </table>
+    </div>
+    <div class="card" style="--card-accent:var(--amber)">
+      <h3>Burst & Synergy Conditions</h3>
+      <table>
+        <tr><td>Burst trigger</td><td>conf ≥ 88% AND setup score ≥ 75%</td></tr>
+        <tr><td>Burst action</td><td>เปิดเพิ่ม 2 lots พร้อมกัน</td></tr>
+        <tr><td>Lot Synergy</td><td>A+ grade → +5% ถึง +15%</td></tr>
+        <tr><td>Trail Widen</td><td>trend confirmed → trailing +25%</td></tr>
+        <tr><td>Partial Hold</td><td>ชะลอ TP ถ้า trend ยังแกร่ง</td></tr>
+        <tr><td>Fast BE</td><td>ดึง breakeven เร็วถ้า AI เตือน</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ RISK GATE ═══════════ -->
+<div class="layer-panel" id="p3">
+  <div class="layer-hd"><h2>🛡 Risk <span style="color:var(--rust2)">Gate</span></h2></div>
+  <p class="layer-desc">ตรวจสอบทุก condition ก่อน entry — ผ่านทั้งหมดจึง ALLOW</p>
+  <div class="meta-row">
+    <div class="meta-tag"><b>INPUT</b> Score, AI Dir, PnL, Margin, Spread, GUI</div>
+    <div class="meta-tag"><b>OUTPUT</b> ALLOW ✅ / DENY 🚫, Zone State, De-risk</div>
+  </div>
+  <div class="flow-wrap" style="--accent:var(--rust)">
+    <div class="flow">
+      <div class="flow-row">
+        <div class="node n-in">📊 Score</div>
+        <div class="node n-in">🧠 AI Direction</div>
+        <div class="node n-in">💰 PnL</div>
+        <div class="node n-in">🏦 Margin</div>
+        <div class="node n-in">📐 Spread</div>
+        <div class="node n-in">🖥 GUI Command</div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">Gate Checks</div>
+        <div class="flow-row" style="flex-wrap:wrap">
+          <div class="node n-proc">Score Threshold<small>ผ่านขั้นต่ำ?</small></div>
+          <div class="node n-proc">AI Direction Filter</div>
+          <div class="node n-proc">Spread Gate<small>&gt; MaxSpread → BLOCK</small></div>
+          <div class="node n-proc">Margin Gate<small>Free margin OK?</small></div>
+          <div class="node n-proc">Session Check</div>
+          <div class="node n-proc">GUI Pause</div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">Drawdown Zone Monitor</div>
+        <div class="flow-row">
+          <div class="node" style="--node-accent:var(--sage2);border-color:rgba(78,124,90,.4);color:var(--sage2)">🟢 GREEN<small>DD &lt; 3%</small></div>
+          <div class="node" style="--node-accent:#c8b840;border-color:rgba(190,170,50,.4);color:#c8b840">🟡 YELLOW<small>DD 3–5%</small></div>
+          <div class="node" style="--node-accent:var(--amber2);border-color:rgba(170,110,30,.4);color:var(--amber2)">🟠 ORANGE<small>DD 5–7%</small></div>
+          <div class="node" style="--node-accent:var(--rust2);border-color:rgba(154,60,42,.5);color:var(--rust2)">🔴 RED<small>DD &gt; 7%</small></div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">Daily Limit System</div>
+        <div class="flow-row">
+          <div class="node n-proc">Stage 1<small>loss ใกล้ daily limit</small></div>
+          <div class="node n-warn">Stage 2 — Flatten<small>ปิดทั้งพอร์ต</small></div>
+          <div class="node n-block">Day Lock 🔒<small>ปลดล็อกวันใหม่</small></div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">Lot Multiplier Calc</div>
+        <div class="flow-row">
+          <div class="node n-proc">Zone Multiplier<small>GREEN=1.0 · YELLOW=0.7</small></div>
+          <div class="node n-proc">Daily Budget Left</div>
+          <div class="node n-key" style="font-size:12px;padding:10px 16px">Final Lot Multiplier</div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="flow-row">
+        <div class="node n-ok" style="font-size:14px;padding:14px 32px">✅ ALLOW<small>Entry permitted</small></div>
+        <div class="node n-deny">🚫 DENY<small>Any gate failed</small></div>
+      </div>
+    </div>
+  </div>
+  <div class="info-grid">
+    <div class="card" style="--card-accent:var(--rust)">
+      <h3>Zone Behavior Matrix</h3>
+      <div class="zone-row">
+        <div class="zone-card zg"><div class="z-name">🟢 Green</div><div class="z-trig">DD &lt; 3%</div><div class="z-act">เทรดปกติ</div></div>
+        <div class="zone-card zy"><div class="z-name">🟡 Yellow</div><div class="z-trig">DD 3–5%</div><div class="z-act">ลด lot</div></div>
+        <div class="zone-card zo"><div class="z-name">🟠 Orange</div><div class="z-trig">DD 5–7%</div><div class="z-act">Block entry</div></div>
+        <div class="zone-card zr"><div class="z-name">🔴 Red</div><div class="z-trig">DD &gt; 7%</div><div class="z-act">Close All + Halt</div></div>
+      </div>
+    </div>
+    <div class="card" style="--card-accent:var(--amber)">
+      <h3>Daily Limit Stage Flow</h3>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">0</div><div class="step-text">PnL ปกติ — เทรดตามปกติ</div></div>
+        <div class="step"><div class="step-num">1</div><div class="step-text"><b>Stage 1</b> — loss ใกล้ daily limit → ลด exposure ฝั่งเสี่ยง</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><b>Stage 2</b> — loss แย่ลงอีก → Flatten ทั้งพอร์ต</div></div>
+        <div class="step"><div class="step-num">🔒</div><div class="step-text"><b>Day Lock</b> — ชน limit → lock จนวันใหม่</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ORDER MANAGER ═══════════ -->
+<div class="layer-panel" id="p4">
+  <div class="layer-hd"><h2>📋 Order <span style="color:var(--sage2)">Manager</span></h2></div>
+  <p class="layer-desc">ตัดสินใจว่าจะ เปิด / ทบ / scale-in / กู้ order แล้วส่งไป Broker</p>
+  <div class="meta-row">
+    <div class="meta-tag"><b>INPUT</b> Entry Allowed, Lot Base, AI Synergy, Reversal, Position State</div>
+    <div class="meta-tag"><b>OUTPUT</b> Orders → Broker, Position tracking, GUI update</div>
+  </div>
+  <div class="flow-wrap" style="--accent:var(--sage)">
+    <div class="flow">
+      <div class="flow-row">
+        <div class="node n-in">✅ Entry Allowed<small>จาก Risk Gate</small></div>
+        <div class="node n-in">📊 Base Lot<small>Balance × Risk%</small></div>
+        <div class="node n-ai">🧠 AI Synergy<small>lot boost + burst</small></div>
+        <div class="node n-in">🔄 Reversal Signal</div>
+        <div class="node n-in">📋 Position State<small>side · level · PnL</small></div>
+        <div class="node n-ext">🌐 Broker MT5</div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="sub">
+        <div class="sub-title">Lot Size Calculator</div>
+        <div class="flow-row">
+          <div class="node n-proc">Auto Lot<small>Balance × Risk% ÷ SL × point</small></div>
+          <div class="node n-proc">Lot Normalizer<small>min · max · step</small></div>
+          <div class="node n-ai">AI Lot Boost<small>+5–15% for A+</small></div>
+          <div class="node n-key" style="font-size:12px;padding:10px 16px">Final Lot Size</div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="flow-row" style="align-items:flex-start;gap:12px;flex-wrap:wrap">
+        <div class="sub" style="flex:1;min-width:130px">
+          <div class="sub-title" style="color:var(--slate2)">🎯 New Entry</div>
+          <div class="node n-proc" style="margin-bottom:6px">Profile<small>FAST · LEGACY</small></div>
+          <div class="node n-proc" style="margin-bottom:6px">BUY / SELL Order</div>
+          <div class="node n-proc" style="margin-bottom:6px">Best Hold Mode</div>
+          <div class="node n-proc">Extended TP / Timer</div>
+        </div>
+        <div class="sub" style="flex:1;min-width:130px">
+          <div class="sub-title" style="color:var(--amber2)">📈 Smart DCA</div>
+          <div class="node n-proc" style="margin-bottom:6px">Level Check<small>&lt; Max?</small></div>
+          <div class="node n-proc" style="margin-bottom:6px">Viability Check</div>
+          <div class="node n-block" style="margin-bottom:6px">🚫 Unsalvageable</div>
+          <div class="node n-proc" style="margin-bottom:6px">Lot × 1.5x</div>
+          <div class="node n-ok">DCA Order</div>
+        </div>
+        <div class="sub" style="flex:1;min-width:120px">
+          <div class="sub-title" style="color:#c090e0">⚡ Scale-in</div>
+          <div class="node n-proc" style="margin-bottom:6px">Direction Valid<small>ทิศเดิม?</small></div>
+          <div class="node n-proc" style="margin-bottom:6px">Gap Checker</div>
+          <div class="node n-ok">Scale-in Order</div>
+        </div>
+        <div class="sub" style="flex:1;min-width:120px">
+          <div class="sub-title" style="color:var(--rust2)">🚑 Rescue</div>
+          <div class="node n-proc" style="margin-bottom:6px">Partial Close</div>
+          <div class="node n-proc" style="margin-bottom:6px">Flip Lot Calc</div>
+          <div class="node n-proc" style="margin-bottom:6px">Quick TP · SL</div>
+          <div class="node n-proc" style="margin-bottom:6px">Cooldown Check</div>
+          <div class="node n-ok">Rescue Order</div>
+        </div>
+        <div class="sub" style="flex:1;min-width:110px">
+          <div class="sub-title" style="color:var(--amber3)">🔥 Burst</div>
+          <div class="node n-proc" style="margin-bottom:6px">conf ≥ 88%<small>setup ≥ 75%</small></div>
+          <div class="node n-ok">2 Extra Lots</div>
+        </div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-line"></div></div>
+      <div class="flow-row">
+        <div class="node n-out">→ Broker<small>send order</small></div>
+        <div class="node n-out">→ Position Manager</div>
+        <div class="node n-out">→ Logger<small>lineage</small></div>
+        <div class="node n-out">→ GUI Panel</div>
+      </div>
+    </div>
+  </div>
+  <div class="info-grid">
+    <div class="card" style="--card-accent:var(--sage)">
+      <h3>Order Decision Matrix</h3>
+      <table>
+        <tr><td>ไม่มี position</td><td><span class="pill p-slate">New Entry</span> Score ผ่าน + Entry Allowed</td></tr>
+        <tr><td>position ขาดทุน</td><td><span class="pill p-amber">Smart DCA</span> Level &lt; Max AND Viability OK</td></tr>
+        <tr><td>สัญญาณทิศเดิม</td><td><span class="pill p-purple">Scale-in</span> Same direction + Gap OK</td></tr>
+        <tr><td>สัญญาณกลับทิศ</td><td><span class="pill p-rust">Rescue</span> Reversal + Cooldown expired</td></tr>
+        <tr><td>AI conf พุ่ง</td><td><span class="pill p-amber">Burst</span> conf ≥ 88% AND setup ≥ 75%</td></tr>
+        <tr><td>Score + AI ดีมาก</td><td><span class="pill p-sage">Best Hold</span> Extended TP ตาม ATR</td></tr>
+      </table>
+    </div>
+    <div class="card" style="--card-accent:var(--rust)">
+      <h3>DCA Viability Logic</h3>
+      <div class="step-flow">
+        <div class="step"><div class="step-num">?</div><div class="step-text">Level &lt; Max Level?</div></div>
+        <div class="step"><div class="step-num">?</div><div class="step-text">Free Margin เพียงพอ?</div></div>
+        <div class="step"><div class="step-num">?</div><div class="step-text">New TP ชดเชยขาดทุนได้?</div></div>
+        <div class="step"><div class="step-num">✅</div><div class="step-text">ผ่านทั้ง 3 ข้อ → <b>ทบไม้ได้</b></div></div>
+        <div class="step"><div class="step-num">🚫</div><div class="step-text">ข้อใดข้อหนึ่ง NO → <b>Unsalvageable Block</b></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ UPDATE LOG ═══════════ -->
+<div class="layer-panel" id="p5">
+  <div class="layer-hd"><h2>📝 Update <span style="color:var(--slate2)">Log</span></h2></div>
+  <p class="layer-desc">Persistent release notes for this viewer with Markdown rendering, secret editor access, and new-update popup alerts.</p>
+  <div class="meta-row">
+    <div class="meta-tag"><b>FORMAT</b> Markdown render + live preview</div>
+    <div class="meta-tag"><b>STORAGE</b> Browser persistent storage</div>
+    <div class="meta-tag"><b>ALERT</b> Popup shortcut to this tab</div>
+  </div>
+  <div class="update-log-layout">
+    <div class="card" style="--card-accent:var(--slate2)">
+      <h3>Release Feed</h3>
+      <div class="update-log-empty" id="updateLogEmpty">No update log has been saved yet. Unlock the hidden editor to publish the first release note.</div>
+      <div class="update-log-feed" id="updateLogFeed"></div>
+    </div>
+    <div class="update-side-stack">
+      <div class="card" style="--card-accent:var(--amber)">
+        <h3>Viewer Status</h3>
+        <div class="update-summary" id="updateSummary"></div>
+        <button class="ghost-btn" id="openEditorInline" type="button" hidden>Open Secret Editor</button>
+        <p class="update-note">Click <b>VERSION 2.0</b> five times to reveal the hidden editor for changelog publishing and soundtrack settings.</p>
+      </div>
+      <div class="card" style="--card-accent:var(--sage)">
+        <h3>Soundtrack</h3>
+        <div class="update-summary" id="audioSummary"></div>
+        <p class="update-note">Playback is armed on the first click or key press anywhere on the page and then loops through the saved playlist automatically.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<div class="update-toast" id="updateToast" hidden>
+  <div class="update-toast__eyebrow">New Update Available</div>
+  <div class="update-toast__title" id="updateToastTitle">A fresh update log entry is ready</div>
+  <div class="update-toast__body" id="updateToastBody">Open the release feed to read the latest changes.</div>
+  <div class="update-toast__actions">
+    <button class="admin-btn" id="toastOpenButton" type="button">Open Update Log</button>
+    <button class="ghost-btn" id="toastDismissButton" type="button">Dismiss</button>
+  </div>
+</div>
+
+<button class="secret-admin-btn" id="secretAdminButton" type="button" hidden>Secret Log Editor</button>
+
+<div class="admin-modal" id="adminModal" hidden>
+  <div class="admin-modal__backdrop" data-close-admin></div>
+  <div class="admin-modal__panel">
+    <div class="admin-modal__head">
+      <div>
+        <div class="admin-modal__eyebrow">Secret Control Panel</div>
+        <h3>EA Update Log Editor</h3>
+        <p>Save Markdown release notes permanently in this browser and configure the soundtrack playlist with direct audio file URLs you are allowed to use.</p>
+      </div>
+      <button class="ghost-btn" id="closeAdminModal" type="button">Close</button>
+    </div>
+    <div class="admin-modal__grid">
+      <div class="admin-section">
+        <div class="admin-field">
+          <label for="logVersionInput">Version</label>
+          <input id="logVersionInput" type="text" placeholder="2.1.0">
+        </div>
+        <div class="admin-field">
+          <label for="logTitleInput">Title</label>
+          <input id="logTitleInput" type="text" placeholder="Momentum tuning and rescue tweaks">
+        </div>
+        <div class="admin-field">
+          <label for="logBodyInput">Markdown Body</label>
+          <textarea id="logBodyInput" placeholder="# Highlights&#10;&#10;- Added ...&#10;- Fixed ...&#10;&#10;## Notes&#10;More details here."></textarea>
+        </div>
+        <div class="admin-actions">
+          <button class="admin-btn" id="saveLogButton" type="button">Save Update Log</button>
+          <button class="ghost-btn" id="clearDraftButton" type="button">Clear Draft</button>
+        </div>
+        <p class="audio-hint">Saved entries stay in browser storage for this viewer file. The popup uses the latest published entry as its alert source.</p>
+      </div>
+      <div class="admin-side-stack">
+        <div class="admin-section">
+          <div class="admin-modal__eyebrow">Live Preview</div>
+          <div class="markdown-body" id="logPreview">Write Markdown on the left to preview the rendered output here.</div>
+        </div>
+        <div class="admin-section">
+          <div class="admin-modal__eyebrow">Soundtrack Playlist</div>
+          <div class="admin-field">
+            <label for="playlistInput">Direct MP3 URLs or local file URLs</label>
+            <textarea id="playlistInput" placeholder="https://example.com/theme.mp3&#10;file:///C:/music/track-two.mp3"></textarea>
+          </div>
+          <div class="admin-actions">
+            <button class="admin-btn" id="savePlaylistButton" type="button">Save Playlist</button>
+          </div>
+          <p class="audio-hint">YouTube page links do not work directly inside the HTML audio player. Use direct audio files or URLs that you already have permission to use.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<audio id="soundtrackPlayer" preload="auto" playsinline></audio>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+<script>
+const persistentStorage = createSafeStorage('local');
+const sessionStateStorage = createSafeStorage('session');
+
+const STORAGE_KEYS = {
+  logs: 'qts_update_logs',
+  playlist: 'qts_soundtrack_playlist',
+  draft: 'qts_update_draft',
+  lastSeen: 'qts_last_seen_update'
+};
+
+const SOUNDTRACK_VOLUME = 0.56;
+const DEFAULT_SOUNDTRACK_PLAYLIST = [];
+
+const tabs = [...document.querySelectorAll('.tab')];
+const panels = [...document.querySelectorAll('.layer-panel')];
+const versionBadge = document.getElementById('versionBadge');
+const updateToast = document.getElementById('updateToast');
+const updateToastTitle = document.getElementById('updateToastTitle');
+const updateToastBody = document.getElementById('updateToastBody');
+const toastOpenButton = document.getElementById('toastOpenButton');
+const toastDismissButton = document.getElementById('toastDismissButton');
+const secretAdminButton = document.getElementById('secretAdminButton');
+const openEditorInline = document.getElementById('openEditorInline');
+const adminModal = document.getElementById('adminModal');
+const closeAdminModalButton = document.getElementById('closeAdminModal');
+const logVersionInput = document.getElementById('logVersionInput');
+const logTitleInput = document.getElementById('logTitleInput');
+const logBodyInput = document.getElementById('logBodyInput');
+const logPreview = document.getElementById('logPreview');
+const clearDraftButton = document.getElementById('clearDraftButton');
+const saveLogButton = document.getElementById('saveLogButton');
+const playlistInput = document.getElementById('playlistInput');
+const savePlaylistButton = document.getElementById('savePlaylistButton');
+const updateLogFeed = document.getElementById('updateLogFeed');
+const updateLogEmpty = document.getElementById('updateLogEmpty');
+const updateSummary = document.getElementById('updateSummary');
+const audioSummary = document.getElementById('audioSummary');
+const soundtrackPlayer = document.getElementById('soundtrackPlayer');
+const dustLayer = document.getElementById('dustLayer');
+const updateChannel = typeof BroadcastChannel === 'function'
+  ? new BroadcastChannel('qts-update-log')
+  : null;
+
+const W = window.innerWidth;
+const H = window.innerHeight;
+
+const state = {
+  adminClicks: 0,
+  adminUnlocked: false,
+  firstInteractionReceived: false,
+  playlistIndex: 0,
+  logs: loadLogs(),
+  playlist: loadPlaylist()
+};
+
+let badgeResetTimer = null;
+
+if (window.marked && typeof window.marked.setOptions === 'function') {
+  window.marked.setOptions({
+    gfm: true,
+    breaks: true
+  });
+}
+
+function createSafeStorage(kind) {
+  try {
+    const target = kind === 'session' ? window.sessionStorage : window.localStorage;
+    const testKey = `__qts_${kind}_storage_test__`;
+    target.setItem(testKey, '1');
+    target.removeItem(testKey);
+    return {
+      available: true,
+      getItem(key) { return target.getItem(key); },
+      setItem(key, value) { target.setItem(key, value); },
+      removeItem(key) { target.removeItem(key); }
+    };
+  } catch (error) {
+    const memory = {};
+    return {
+      available: false,
+      getItem(key) { return Object.prototype.hasOwnProperty.call(memory, key) ? memory[key] : null; },
+      setItem(key, value) { memory[key] = String(value); },
+      removeItem(key) { delete memory[key]; }
+    };
+  }
+}
+
+function safeParse(raw, fallback) {
+  try {
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (error) {
+    return fallback;
+  }
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[char]);
+}
+
+function formatDate(value) {
+  if (!value) return 'Unknown';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat('th-TH', {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  }).format(date);
+}
+
+function sortByNewest(a, b) {
+  return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+}
+
+function loadLogs() {
+  const parsed = safeParse(persistentStorage.getItem(STORAGE_KEYS.logs), []);
+  return Array.isArray(parsed) ? parsed.filter(Boolean).sort(sortByNewest) : [];
+}
+
+function loadPlaylist() {
+  const parsed = safeParse(persistentStorage.getItem(STORAGE_KEYS.playlist), DEFAULT_SOUNDTRACK_PLAYLIST);
+  return Array.isArray(parsed)
+    ? parsed.map(item => String(item || '').trim()).filter(Boolean)
+    : DEFAULT_SOUNDTRACK_PLAYLIST.slice();
+}
+
+function loadDraft() {
+  const parsed = safeParse(persistentStorage.getItem(STORAGE_KEYS.draft), {
+    version: '',
+    title: '',
+    body: ''
+  });
+  return parsed && typeof parsed === 'object'
+    ? {
+        version: String(parsed.version || ''),
+        title: String(parsed.title || ''),
+        body: String(parsed.body || '')
+      }
+    : { version: '', title: '', body: '' };
+}
+
+function saveDraft() {
+  persistentStorage.setItem(STORAGE_KEYS.draft, JSON.stringify({
+    version: logVersionInput.value,
+    title: logTitleInput.value,
+    body: logBodyInput.value
+  }));
+}
+
+function renderMarkdown(text) {
+  const source = String(text || '').trim();
+  if (!source) {
+    return '<p>No details provided yet.</p>';
+  }
+
+  if (window.marked) {
+    const rendered = window.marked.parse(source);
+    return window.DOMPurify ? window.DOMPurify.sanitize(rendered) : rendered;
+  }
+
+  return `<p>${escapeHtml(source).replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br>')}</p>`;
+}
+
+function setPreviewContent(text) {
+  logPreview.innerHTML = renderMarkdown(text || 'No content yet.');
+}
+
+function getLatestLog() {
+  return state.logs[0] || null;
+}
+
+function getLastSeenId() {
+  return sessionStateStorage.getItem(STORAGE_KEYS.lastSeen);
+}
+
+function markLatestSeen() {
+  const latest = getLatestLog();
+  if (!latest) return;
+  sessionStateStorage.setItem(STORAGE_KEYS.lastSeen, latest.id);
+  hideToast();
+  renderStatusSummary();
+}
+
+function show(i) {
+  tabs.forEach((tab, index) => tab.classList.toggle('active', index === i));
+  panels.forEach((panel, index) => panel.classList.toggle('active', index === i));
+
+  const activePanel = panels[i];
+  setTimeout(() => {
+    const nodes = activePanel.querySelectorAll('.node, .ov-block, .update-entry');
+    nodes.forEach((node, index) => {
+      node.style.animationName = 'none';
+      node.style.animationDelay = (index * 0.032) + 's';
+      void node.offsetWidth;
+      node.style.animationName = '';
+    });
+  }, 10);
+
+  if (i === 5) {
+    markLatestSeen();
+  }
+}
+
+window.show = show;
+
+function updateAdminVisibility() {
+  versionBadge.classList.toggle('is-unlocked', state.adminUnlocked);
+  secretAdminButton.hidden = !state.adminUnlocked;
+  secretAdminButton.classList.toggle('is-visible', state.adminUnlocked);
+  openEditorInline.hidden = !state.adminUnlocked;
+}
+
+function unlockAdmin() {
+  state.adminUnlocked = true;
+  state.adminClicks = 0;
+  clearTimeout(badgeResetTimer);
+  updateAdminVisibility();
+}
+
+function openAdminModal() {
+  const draft = loadDraft();
+  logVersionInput.value = draft.version;
+  logTitleInput.value = draft.title;
+  logBodyInput.value = draft.body;
+  playlistInput.value = state.playlist.join('\n');
+  setPreviewContent(logBodyInput.value);
+  adminModal.hidden = false;
+  document.body.classList.add('admin-open');
+}
+
+function closeAdminModal() {
+  adminModal.hidden = true;
+  document.body.classList.remove('admin-open');
+}
+
+function clearDraft() {
+  persistentStorage.removeItem(STORAGE_KEYS.draft);
+  logVersionInput.value = '';
+  logTitleInput.value = '';
+  logBodyInput.value = '';
+  setPreviewContent('');
+}
+
+function createLogEntry() {
+  return {
+    id: `log-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    version: logVersionInput.value.trim(),
+    title: logTitleInput.value.trim() || 'Untitled update',
+    body: logBodyInput.value.trim(),
+    createdAt: new Date().toISOString()
+  };
+}
+
+function normalizePlaylist(input) {
+  return String(input || '')
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean);
+}
+
+function getTrackLabel(url) {
+  try {
+    const cleaned = String(url || '').split('?')[0];
+    const label = cleaned.split('/').pop() || cleaned;
+    return decodeURIComponent(label || 'Track');
+  } catch (error) {
+    return String(url || 'Track');
+  }
+}
+
+function playTrack(index) {
+  if (!state.playlist.length) {
+    soundtrackPlayer.pause();
+    soundtrackPlayer.removeAttribute('src');
+    soundtrackPlayer.load();
+    updateAudioSummary();
+    return;
+  }
+
+  state.playlistIndex = ((index % state.playlist.length) + state.playlist.length) % state.playlist.length;
+  soundtrackPlayer.src = state.playlist[state.playlistIndex];
+  soundtrackPlayer.volume = SOUNDTRACK_VOLUME;
+
+  const playPromise = soundtrackPlayer.play();
+  if (playPromise && typeof playPromise.then === 'function') {
+    playPromise
+      .then(() => updateAudioSummary())
+      .catch(() => updateAudioSummary('Browser still requires another interaction before audio can continue'));
+  }
+}
+
+function handleFirstInteraction() {
+  if (state.firstInteractionReceived) return;
+  state.firstInteractionReceived = true;
+
+  if (state.playlist.length) {
+    playTrack(state.playlistIndex);
+  } else {
+    updateAudioSummary('Soundtrack armed, but no playlist has been saved yet');
+  }
+}
+
+function updateAudioSummary(message = '') {
+  const trackCount = state.playlist.length;
+  const currentTrack = trackCount ? getTrackLabel(state.playlist[state.playlistIndex] || state.playlist[0]) : 'None';
+  const statusMessage = message || (
+    !trackCount
+      ? 'No playlist saved'
+      : state.firstInteractionReceived
+        ? (soundtrackPlayer.paused ? 'Ready or paused by the browser' : `Looping track ${state.playlistIndex + 1} of ${trackCount}`)
+        : 'Waiting for the first click / key press'
+  );
+
+  audioSummary.innerHTML = `
+    <div class="status-line"><span class="status-k">Tracks</span><b>${trackCount}</b></div>
+    <div class="status-line"><span class="status-k">State</span><b>${escapeHtml(statusMessage)}</b></div>
+    <div class="status-line"><span class="status-k">Current</span><b>${escapeHtml(currentTrack)}</b></div>
+    <div class="status-line"><span class="status-k">Storage</span><b>${persistentStorage.available ? 'Persistent in browser' : 'Fallback memory only'}</b></div>
+  `;
+}
+
+function renderStatusSummary() {
+  const latest = getLatestLog();
+
+  if (!latest) {
+    updateSummary.innerHTML = `
+      <div class="status-line"><span class="status-k">Latest</span><b>No release yet</b></div>
+      <div class="status-line"><span class="status-k">Entries</span><b>0</b></div>
+      <div class="status-line"><span class="status-k">Storage</span><b>${persistentStorage.available ? 'Persistent in browser' : 'Fallback memory only'}</b></div>
+      <div class="status-line"><span class="status-k">Popup</span><b>Waiting for the first saved update</b></div>
+    `;
+    updateAudioSummary();
+    return;
+  }
+
+  updateSummary.innerHTML = `
+    <div class="status-line"><span class="status-k">Latest</span><b>${escapeHtml(latest.title)}</b></div>
+    <div class="status-line"><span class="status-k">Version</span><b>${escapeHtml(latest.version || 'Custom')}</b></div>
+    <div class="status-line"><span class="status-k">Published</span><b>${escapeHtml(formatDate(latest.createdAt))}</b></div>
+    <div class="status-line"><span class="status-k">Popup</span><b>${getLastSeenId() === latest.id ? 'Already seen in this tab' : 'Unread update detected'}</b></div>
+  `;
+
+  updateAudioSummary();
+}
+
+function renderUpdateLog() {
+  state.logs = state.logs.slice().sort(sortByNewest);
+  updateLogFeed.innerHTML = '';
+  updateLogEmpty.hidden = state.logs.length > 0;
+
+  state.logs.forEach((log, index) => {
+    const entry = document.createElement('article');
+    entry.className = 'update-entry';
+    if (index === 0) {
+      entry.classList.add('latest');
+    }
+
+    entry.innerHTML = `
+      <div class="update-entry__meta">
+        <span class="update-chip">${escapeHtml(log.version || 'Custom')}</span>
+        <span>${escapeHtml(formatDate(log.createdAt))}</span>
+      </div>
+      <h3>${escapeHtml(log.title || 'Untitled update')}</h3>
+      <div class="markdown-body">${renderMarkdown(log.body)}</div>
+    `;
+
+    updateLogFeed.appendChild(entry);
+  });
+
+  renderStatusSummary();
+  syncToastState();
+}
+
+function showToast(log) {
+  if (!log) {
+    hideToast();
+    return;
+  }
+
+  const prefix = log.version ? `v${log.version} • ` : '';
+  updateToastTitle.textContent = `${prefix}${log.title || 'New update available'}`;
+  updateToastBody.textContent = `Published ${formatDate(log.createdAt)}. Open the update log tab to read the full release note.`;
+  updateToast.hidden = false;
+}
+
+function hideToast() {
+  updateToast.hidden = true;
+}
+
+function syncToastState() {
+  const latest = getLatestLog();
+  if (!latest) {
+    hideToast();
+    return;
+  }
+
+  if (panels[5] && panels[5].classList.contains('active')) {
+    markLatestSeen();
+    return;
+  }
+
+  if (latest.id !== getLastSeenId()) {
+    showToast(latest);
+  } else {
+    hideToast();
+  }
+}
+
+// Mouse ripple on nodes
+document.addEventListener('mousemove', event => {
+  const node = event.target.closest('.node');
+  if (!node) return;
+  const rect = node.getBoundingClientRect();
+  node.style.setProperty('--mx', ((event.clientX - rect.left) / rect.width * 100) + '%');
+  node.style.setProperty('--my', ((event.clientY - rect.top) / rect.height * 100) + '%');
+});
+
+// Secret unlock
+versionBadge.addEventListener('click', () => {
+  if (state.adminUnlocked) return;
+  state.adminClicks += 1;
+  clearTimeout(badgeResetTimer);
+  badgeResetTimer = setTimeout(() => {
+    state.adminClicks = 0;
+  }, 1800);
+
+  if (state.adminClicks >= 5) {
+    unlockAdmin();
+  }
+});
+
+secretAdminButton.addEventListener('click', openAdminModal);
+openEditorInline.addEventListener('click', openAdminModal);
+closeAdminModalButton.addEventListener('click', closeAdminModal);
+adminModal.querySelector('[data-close-admin]').addEventListener('click', closeAdminModal);
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && !adminModal.hidden) {
+    closeAdminModal();
+  }
+});
+
+logVersionInput.addEventListener('input', saveDraft);
+logTitleInput.addEventListener('input', saveDraft);
+logBodyInput.addEventListener('input', () => {
+  saveDraft();
+  setPreviewContent(logBodyInput.value);
+});
+
+clearDraftButton.addEventListener('click', clearDraft);
+
+saveLogButton.addEventListener('click', () => {
+  const body = logBodyInput.value.trim();
+  if (!body) {
+    logBodyInput.focus();
+    setPreviewContent('Please add Markdown content before saving.');
+    return;
+  }
+
+  const newEntry = createLogEntry();
+  state.logs = [newEntry, ...state.logs].sort(sortByNewest);
+  persistentStorage.setItem(STORAGE_KEYS.logs, JSON.stringify(state.logs));
+  persistentStorage.removeItem(STORAGE_KEYS.draft);
+
+  renderUpdateLog();
+  closeAdminModal();
+  show(5);
+
+  if (updateChannel) {
+    updateChannel.postMessage({ type: 'log-updated', id: newEntry.id });
+  }
+});
+
+savePlaylistButton.addEventListener('click', () => {
+  state.playlist = normalizePlaylist(playlistInput.value);
+  persistentStorage.setItem(STORAGE_KEYS.playlist, JSON.stringify(state.playlist));
+
+  if (!state.playlist.length) {
+    soundtrackPlayer.pause();
+    soundtrackPlayer.removeAttribute('src');
+    soundtrackPlayer.load();
+    state.playlistIndex = 0;
+    updateAudioSummary('Playlist cleared');
+  } else {
+    state.playlistIndex = Math.min(state.playlistIndex, state.playlist.length - 1);
+    updateAudioSummary('Playlist saved');
+
+    if (state.firstInteractionReceived) {
+      playTrack(state.playlistIndex);
+    }
+  }
+
+  if (updateChannel) {
+    updateChannel.postMessage({ type: 'playlist-updated' });
+  }
+});
+
+toastOpenButton.addEventListener('click', () => {
+  show(5);
+});
+
+toastDismissButton.addEventListener('click', () => {
+  markLatestSeen();
+});
+
+document.addEventListener('pointerdown', handleFirstInteraction, { once: true, capture: true });
+document.addEventListener('keydown', handleFirstInteraction, { once: true, capture: true });
+
+soundtrackPlayer.addEventListener('ended', () => {
+  if (!state.playlist.length) return;
+  playTrack(state.playlistIndex + 1);
+});
+
+soundtrackPlayer.addEventListener('play', () => {
+  updateAudioSummary();
+});
+
+soundtrackPlayer.addEventListener('pause', () => {
+  if (document.hidden || !state.firstInteractionReceived || !state.playlist.length) {
+    updateAudioSummary();
+    return;
+  }
+
+  window.setTimeout(() => {
+    if (!document.hidden && soundtrackPlayer.paused) {
+      soundtrackPlayer.play().catch(() => {
+        updateAudioSummary('Tap again to resume the soundtrack');
+      });
+    }
+  }, 220);
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && state.firstInteractionReceived && state.playlist.length && soundtrackPlayer.paused) {
+    soundtrackPlayer.play().catch(() => {
+      updateAudioSummary('Tap again to resume the soundtrack');
+    });
+  }
+});
+
+window.addEventListener('storage', event => {
+  if (event.key === STORAGE_KEYS.logs) {
+    state.logs = loadLogs();
+    renderUpdateLog();
+  }
+
+  if (event.key === STORAGE_KEYS.playlist) {
+    state.playlist = loadPlaylist();
+    state.playlistIndex = Math.min(state.playlistIndex, Math.max(state.playlist.length - 1, 0));
+    updateAudioSummary();
+  }
+});
+
+if (updateChannel) {
+  updateChannel.addEventListener('message', event => {
+    if (!event.data || typeof event.data !== 'object') return;
+
+    if (event.data.type === 'log-updated') {
+      state.logs = loadLogs();
+      renderUpdateLog();
+    }
+
+    if (event.data.type === 'playlist-updated') {
+      state.playlist = loadPlaylist();
+      state.playlistIndex = Math.min(state.playlistIndex, Math.max(state.playlist.length - 1, 0));
+      updateAudioSummary();
+    }
+  });
+}
+
+// Dust particles: slightly denser and brighter than before
+for (let i = 0; i < 82; i++) {
+  const mote = document.createElement('div');
+  mote.className = 'mote';
+  const size = Math.random() * 2.9 + .8;
+  const cx = W * (.16 + Math.random() * .66);
+  const cy = H * (Math.random() * .68);
+  const duration = Math.random() * 18 + 10;
+  const delay = Math.random() * -28;
+  const dx1 = (Math.random() - 0.5) * 60;
+  const dy1 = (Math.random() - 0.5) * 50;
+  const dx2 = (Math.random() - 0.5) * 84;
+  const dy2 = (Math.random() - 0.5) * 72;
+  const dx3 = (Math.random() - 0.5) * 58;
+  const dy3 = (Math.random() - 0.5) * 64;
+  const dx4 = (Math.random() - 0.5) * 74;
+  const dy4 = (Math.random() - 0.5) * 42;
+  const op0 = (Math.random() * .34 + .08).toFixed(3);
+  const op1 = (Math.random() * .52 + .22).toFixed(3);
+  const op2 = (Math.random() * .28 + .10).toFixed(3);
+
+  mote.style.cssText = `
+    width:${size}px; height:${size}px;
+    left:${cx}px; top:${cy}px;
+    animation-duration:${duration}s;
+    animation-delay:${delay}s;
+    --dx1:${dx1}px; --dy1:${dy1}px;
+    --dx2:${dx2}px; --dy2:${dy2}px;
+    --dx3:${dx3}px; --dy3:${dy3}px;
+    --dx4:${dx4}px; --dy4:${dy4}px;
+    --op0:${op0}; --op1:${op1}; --op2:${op2};
+  `;
+
+  dustLayer.appendChild(mote);
+}
+
+for (let i = 0; i < 44; i++) {
+  const mote = document.createElement('div');
+  mote.className = 'mote-slow';
+  const size = Math.random() * 3.9 + 1.4;
+  const x = Math.random() * W;
+  const y = Math.random() * H;
+  const duration = Math.random() * 15 + 10;
+  const delay = Math.random() * -22;
+  const fa = (Math.random() * .22 + .06).toFixed(3);
+  const fb = (Math.random() * .34 + .14).toFixed(3);
+
+  mote.style.cssText = `
+    width:${size}px; height:${size}px;
+    left:${x}px; top:${y}px;
+    animation-duration:${duration}s;
+    animation-delay:${delay}s;
+    --fa:${fa}; --fb:${fb};
+  `;
+
+  dustLayer.appendChild(mote);
+}
+
+updateAdminVisibility();
+renderUpdateLog();
+updateAudioSummary();
+setPreviewContent('');
+</script>
+</body>
+</html>
