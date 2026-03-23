@@ -178,6 +178,131 @@ body {
   100% { transform: rotate(14deg); }
 }
 
+/* ── ADDITIONAL CORNER LIGHTS ── */
+
+/* bottom-right warm accent */
+.spotlight-br {
+  position: fixed;
+  bottom: -80px; right: -60px;
+  width: 620px; height: 520px;
+  z-index: 2; pointer-events: none;
+  mix-blend-mode: screen;
+  animation: glowPulseBR 18s ease-in-out infinite;
+}
+.spotlight-br::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(
+    ellipse 70% 65% at 80% 78%,
+    rgba(220,160,50,.07) 0%,
+    rgba(200,140,40,.04) 30%,
+    rgba(180,120,30,.015) 55%,
+    transparent 80%
+  );
+  filter: blur(40px);
+}
+.spotlight-br::after {
+  content: '';
+  position: absolute;
+  bottom: 12%; right: 8%;
+  width: 180px; height: 160px;
+  background: radial-gradient(circle, rgba(245,200,90,.08) 0%, transparent 70%);
+  filter: blur(32px);
+  animation: orbDrift2 22s ease-in-out infinite;
+}
+@keyframes glowPulseBR {
+  0%   { opacity: .7; }
+  35%  { opacity: 1; }
+  65%  { opacity: .55; }
+  100% { opacity: .7; }
+}
+
+/* bottom-left cool accent (subtle blue-sage) */
+.spotlight-bl {
+  position: fixed;
+  bottom: -100px; left: -40px;
+  width: 540px; height: 460px;
+  z-index: 2; pointer-events: none;
+  mix-blend-mode: screen;
+  animation: glowPulseBL 22s ease-in-out infinite;
+}
+.spotlight-bl::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(
+    ellipse 65% 60% at 20% 80%,
+    rgba(120,160,140,.05) 0%,
+    rgba(100,140,120,.03) 35%,
+    rgba(80,120,100,.01) 55%,
+    transparent 80%
+  );
+  filter: blur(36px);
+}
+@keyframes glowPulseBL {
+  0%   { opacity: .6; }
+  40%  { opacity: .9; }
+  75%  { opacity: .5; }
+  100% { opacity: .6; }
+}
+
+/* ── AMBIENT FLOATING ORBS ── */
+
+.ambient-orb {
+  position: fixed;
+  z-index: 2; pointer-events: none;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+}
+
+/* orb 1: warm gold — drifts upper-right */
+.ambient-orb--1 {
+  top: 10%; right: 6%;
+  width: 340px; height: 340px;
+  background: radial-gradient(circle, rgba(245,200,85,.18) 0%, rgba(230,175,55,.09) 38%, rgba(200,148,42,.03) 60%, transparent 78%);
+  filter: blur(32px);
+  animation: orbDrift1 26s ease-in-out infinite;
+}
+@keyframes orbDrift1 {
+  0%   { transform: translate(0, 0) scale(1); opacity: .8; }
+  25%  { transform: translate(-30px, 20px) scale(1.08); opacity: 1; }
+  50%  { transform: translate(15px, -15px) scale(.95); opacity: .65; }
+  75%  { transform: translate(-10px, 30px) scale(1.04); opacity: .9; }
+  100% { transform: translate(0, 0) scale(1); opacity: .8; }
+}
+
+/* orb 2: amber-rose — drifts mid-left */
+.ambient-orb--2 {
+  top: 45%; left: 3%;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(210,150,60,.05) 0%, rgba(190,120,50,.025) 45%, transparent 70%);
+  filter: blur(38px);
+  animation: orbDrift2 30s ease-in-out infinite;
+}
+@keyframes orbDrift2 {
+  0%   { transform: translate(0, 0) scale(1); opacity: .5; }
+  30%  { transform: translate(20px, -25px) scale(1.1); opacity: .8; }
+  60%  { transform: translate(-15px, 10px) scale(.92); opacity: .45; }
+  85%  { transform: translate(10px, -20px) scale(1.05); opacity: .7; }
+  100% { transform: translate(0, 0) scale(1); opacity: .5; }
+}
+
+/* orb 3: pale sage — drifts bottom-center */
+.ambient-orb--3 {
+  bottom: 8%; left: 40%;
+  width: 320px; height: 200px;
+  background: radial-gradient(ellipse, rgba(140,170,130,.04) 0%, rgba(120,150,110,.02) 40%, transparent 70%);
+  filter: blur(50px);
+  animation: orbDrift3 24s ease-in-out infinite;
+}
+@keyframes orbDrift3 {
+  0%   { transform: translate(0, 0) scale(1); opacity: .45; }
+  20%  { transform: translate(25px, -10px) scale(1.06); opacity: .7; }
+  45%  { transform: translate(-20px, 15px) scale(.93); opacity: .4; }
+  70%  { transform: translate(10px, -20px) scale(1.1); opacity: .75; }
+  100% { transform: translate(0, 0) scale(1); opacity: .45; }
+}
+
 /* 4. DUST PARTICLES — pure CSS */
 .dust-layer {
   position: fixed; inset: 0; z-index: 3;
@@ -334,14 +459,14 @@ header {
 .tab {
   padding: 14px 22px;
   cursor: pointer;
-  font-family: var(--font-bd);
-  font-size: 15px; font-weight: 600;
-  color: var(--muted);
   background: transparent; border: none;
   border-bottom: 2px solid transparent;
   transition: all .25s ease;
   white-space: nowrap;
   display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-bd);
+  font-size: 15px; font-weight: 600;
+  color: var(--muted);
 }
 .tab:hover { color: var(--cream); }
 .tab.active { color: var(--text); border-bottom-color: var(--tab-accent, var(--amber)); }
@@ -1058,6 +1183,22 @@ body.admin-open { overflow:hidden; }
 ::-webkit-scrollbar { width:5px; height:5px; }
 ::-webkit-scrollbar-track { background:var(--bg); }
 ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+.save-notice {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--sage);
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-family: var(--font-mn);
+  font-size: 13px;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -1069,6 +1210,11 @@ body.admin-open { overflow:hidden; }
 <!-- spotlight cone -->
 <div class="spotlight"></div>
 <div class="spotlight-side"></div>
+<div class="spotlight-br"></div>
+<div class="spotlight-bl"></div>
+<div class="ambient-orb ambient-orb--1"></div>
+<div class="ambient-orb ambient-orb--2"></div>
+<div class="ambient-orb ambient-orb--3"></div>
 
 <!-- beam shimmers -->
 <div class="beam-shimmer"></div>
@@ -1088,19 +1234,19 @@ body.admin-open { overflow:hidden; }
 </header>
 <div class="deco-line"></div>
 
-<div class="tabs">
-  <div class="tab active"  style="--tab-accent:var(--amber)"  onclick="show(0)">🗺 Overview</div>
-  <div class="tab" style="--tab-accent:var(--amber2)"         onclick="show(1)"><span class="tab-num">1</span>🔬 Signal Engine</div>
-  <div class="tab" style="--tab-accent:#9060b8"               onclick="show(2)"><span class="tab-num">2</span>🧠 AI Layer</div>
-  <div class="tab" style="--tab-accent:var(--rust)"           onclick="show(3)"><span class="tab-num">3</span>🛡 Risk Gate</div>
-  <div class="tab" style="--tab-accent:var(--sage)"           onclick="show(4)"><span class="tab-num">4</span>📋 Order Manager</div>
-  <div class="tab" style="--tab-accent:var(--slate2)"         onclick="show(5)"><span class="tab-num">5</span>📝 Update Log</div>
+<div class="tabs" role="tablist" aria-label="DFD Layers">
+  <button class="tab active" role="tab" aria-selected="true" aria-controls="p0" tabindex="0" style="--tab-accent:var(--amber)" data-tab="0">🗺 Overview</button>
+  <button class="tab" role="tab" aria-selected="false" aria-controls="p1" tabindex="-1" style="--tab-accent:var(--amber2)" data-tab="1"><span class="tab-num">1</span>🔬 Signal Engine</button>
+  <button class="tab" role="tab" aria-selected="false" aria-controls="p2" tabindex="-1" style="--tab-accent:#9060b8" data-tab="2"><span class="tab-num">2</span>🧠 AI Layer</button>
+  <button class="tab" role="tab" aria-selected="false" aria-controls="p3" tabindex="-1" style="--tab-accent:var(--rust)" data-tab="3"><span class="tab-num">3</span>🛡 Risk Gate</button>
+  <button class="tab" role="tab" aria-selected="false" aria-controls="p4" tabindex="-1" style="--tab-accent:var(--sage)" data-tab="4"><span class="tab-num">4</span>📋 Order Manager</button>
+  <button class="tab" role="tab" aria-selected="false" aria-controls="p5" tabindex="-1" style="--tab-accent:var(--slate2)" data-tab="5"><span class="tab-num">5</span>📝 Update Log</button>
 </div>
 
 <main>
 
 <!-- ═══════════ OVERVIEW ═══════════ -->
-<div class="layer-panel active" id="p0">
+<div class="layer-panel active" id="p0" role="tabpanel" tabindex="0">
   <div class="layer-hd"><h2>System <span>Overview</span></h2></div>
   <p class="layer-desc">Cross-layer data flow — คลิกแต่ละ block เพื่อดู detail</p>
   <div class="flow-wrap" style="--accent:var(--amber)">
@@ -1110,22 +1256,22 @@ body.admin-open { overflow:hidden; }
         <div><div class="ov-label">Market Tick</div><div class="ov-sub">price · volume · time · spread</div></div>
       </div>
       <div class="ov-conn"><div class="ov-conn-line"></div><div class="ov-conn-chip">tick stream</div><div class="ov-conn-line"></div></div>
-      <div class="ov-block" style="--ov-accent:var(--amber2)" onclick="show(1)">
+      <div class="ov-block" style="--ov-accent:var(--amber2)" data-target="1">
         <div class="ov-num">1</div>
         <div><div class="ov-label">🔬 Signal Engine</div><div class="ov-sub">Score (0–100) + Reversal flag</div></div>
       </div>
       <div class="ov-conn"><div class="ov-conn-line"></div><div class="ov-conn-chip">score + context</div><div class="ov-conn-line"></div></div>
-      <div class="ov-block" style="--ov-accent:#9060b8" onclick="show(2)">
+      <div class="ov-block" style="--ov-accent:#9060b8" data-target="2">
         <div class="ov-num" style="border-color:#9060b8;color:#9060b8">2</div>
         <div><div class="ov-label">🧠 AI Layer</div><div class="ov-sub">Direction + Confidence + Burst / Synergy</div></div>
       </div>
       <div class="ov-conn"><div class="ov-conn-line"></div><div class="ov-conn-chip">direction + AI signals</div><div class="ov-conn-line"></div></div>
-      <div class="ov-block" style="--ov-accent:var(--rust)" onclick="show(3)">
+      <div class="ov-block" style="--ov-accent:var(--rust)" data-target="3">
         <div class="ov-num" style="border-color:var(--rust);color:var(--rust)">3</div>
         <div><div class="ov-label">🛡 Risk Gate</div><div class="ov-sub">ALLOW ✅ / DENY 🚫 + Zone State</div></div>
       </div>
       <div class="ov-conn"><div class="ov-conn-line"></div><div class="ov-conn-chip">entry permission + lot size</div><div class="ov-conn-line"></div></div>
-      <div class="ov-block" style="--ov-accent:var(--sage2)" onclick="show(4)">
+      <div class="ov-block" style="--ov-accent:var(--sage2)" data-target="4">
         <div class="ov-num" style="border-color:var(--sage);color:var(--sage)">4</div>
         <div><div class="ov-label">📋 Order Manager</div><div class="ov-sub">New Entry · DCA · Scale-in · Rescue · Burst</div></div>
       </div>
@@ -1152,7 +1298,7 @@ body.admin-open { overflow:hidden; }
 </div>
 
 <!-- ═══════════ SIGNAL ENGINE ═══════════ -->
-<div class="layer-panel" id="p1">
+<div class="layer-panel" id="p1" role="tabpanel" tabindex="0">
   <div class="layer-hd"><h2>🔬 Signal <span style="color:var(--amber2)">Engine</span></h2></div>
   <p class="layer-desc">แปลง raw tick stream ให้กลายเป็น Signal Score (0–100) และ Reversal flag</p>
   <div class="meta-row">
@@ -1240,7 +1386,7 @@ body.admin-open { overflow:hidden; }
 </div>
 
 <!-- ═══════════ AI LAYER ═══════════ -->
-<div class="layer-panel" id="p2">
+<div class="layer-panel" id="p2" role="tabpanel" tabindex="0">
   <div class="layer-hd"><h2>🧠 AI <span style="color:#c090e0">Layer</span></h2></div>
   <p class="layer-desc">กรอง signal ด้วย Gemini, ออก direction + confidence และสั่ง Burst / Synergy</p>
   <div class="meta-row">
@@ -1349,7 +1495,7 @@ body.admin-open { overflow:hidden; }
 </div>
 
 <!-- ═══════════ RISK GATE ═══════════ -->
-<div class="layer-panel" id="p3">
+<div class="layer-panel" id="p3" role="tabpanel" tabindex="0">
   <div class="layer-hd"><h2>🛡 Risk <span style="color:var(--rust2)">Gate</span></h2></div>
   <p class="layer-desc">ตรวจสอบทุก condition ก่อน entry — ผ่านทั้งหมดจึง ALLOW</p>
   <div class="meta-row">
@@ -1436,7 +1582,7 @@ body.admin-open { overflow:hidden; }
 </div>
 
 <!-- ═══════════ ORDER MANAGER ═══════════ -->
-<div class="layer-panel" id="p4">
+<div class="layer-panel" id="p4" role="tabpanel" tabindex="0">
   <div class="layer-hd"><h2>📋 Order <span style="color:var(--sage2)">Manager</span></h2></div>
   <p class="layer-desc">ตัดสินใจว่าจะ เปิด / ทบ / scale-in / กู้ order แล้วส่งไป Broker</p>
   <div class="meta-row">
@@ -1535,7 +1681,7 @@ body.admin-open { overflow:hidden; }
 </div>
 
 <!-- ═══════════ UPDATE LOG ═══════════ -->
-<div class="layer-panel" id="p5">
+<div class="layer-panel" id="p5" role="tabpanel" tabindex="0">
   <div class="layer-hd"><h2>📝 Update <span style="color:var(--slate2)">Log</span></h2></div>
   <p class="layer-desc">Persistent release notes for this viewer with Markdown rendering, secret editor access, and new-update popup alerts.</p>
   <div class="meta-row">
@@ -1567,7 +1713,7 @@ body.admin-open { overflow:hidden; }
 
 </main>
 
-<div class="update-toast" id="updateToast" hidden>
+<div class="update-toast" id="updateToast" hidden role="alert" aria-live="polite">>
   <div class="update-toast__eyebrow">New Update Available</div>
   <div class="update-toast__title" id="updateToastTitle">A fresh update log entry is ready</div>
   <div class="update-toast__body" id="updateToastBody">Open the release feed to read the latest changes.</div>
@@ -1579,13 +1725,13 @@ body.admin-open { overflow:hidden; }
 
 <button class="secret-admin-btn" id="secretAdminButton" type="button" hidden>Secret Log Editor</button>
 
-<div class="admin-modal" id="adminModal" hidden>
+<div class="admin-modal" id="adminModal" hidden role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
   <div class="admin-modal__backdrop" data-close-admin></div>
   <div class="admin-modal__panel">
     <div class="admin-modal__head">
       <div>
         <div class="admin-modal__eyebrow">Secret Control Panel</div>
-        <h3>EA Update Log Editor</h3>
+        <h3 id="adminModalTitle">EA Update Log Editor</h3>
         <p>Save Markdown release notes permanently in this browser and configure the soundtrack playlist with direct audio file URLs you are allowed to use.</p>
       </div>
       <button class="ghost-btn" id="closeAdminModal" type="button">Close</button>
@@ -1633,8 +1779,12 @@ body.admin-open { overflow:hidden; }
 
 <audio id="soundtrackPlayer" preload="auto" playsinline></audio>
 
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"
+        integrity="sha384-H+hy9ULve6xfxRkWIh/YOtvDdpXgV2fmAGQkIDTxIgZwNoaoBal14Di2YTMR6MzR"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"
+        integrity="sha384-eEu5CTj3qGvu9PdJuS+YlkNi7d2XxQROAFYOr59zgObtlcux1ae1Il3u7jvdCSWu"
+        crossorigin="anonymous"></script>
 <script>
 const persistentStorage = createSafeStorage('local');
 const sessionStateStorage = createSafeStorage('session');
@@ -1679,8 +1829,17 @@ const updateChannel = typeof BroadcastChannel === 'function'
   ? new BroadcastChannel('qts-update-log')
   : null;
 
-const W = window.innerWidth;
-const H = window.innerHeight;
+let W = window.innerWidth;
+let H = window.innerHeight;
+
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
+function throttle(fn, ms) {
+  let last = 0;
+  return (...args) => { const now = Date.now(); if (now - last >= ms) { last = now; fn(...args); } };
+}
 
 const state = {
   adminClicks: 0,
@@ -1688,8 +1847,11 @@ const state = {
   firstInteractionReceived: false,
   playlistIndex: 0,
   logs: loadLogs(),
-  playlist: loadPlaylist()
+  playlist: loadPlaylist(),
+  audioResumeAttempts: 0
 };
+
+const MAX_AUDIO_RESUME_ATTEMPTS = 3;
 
 let badgeResetTimer = null;
 
@@ -1796,9 +1958,8 @@ function renderMarkdown(text) {
     return '<p>No details provided yet.</p>';
   }
 
-  if (window.marked) {
-    const rendered = window.marked.parse(source);
-    return window.DOMPurify ? window.DOMPurify.sanitize(rendered) : rendered;
+  if (window.marked && window.DOMPurify) {
+    return window.DOMPurify.sanitize(window.marked.parse(source));
   }
 
   return `<p>${escapeHtml(source).replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br>')}</p>`;
@@ -1825,7 +1986,12 @@ function markLatestSeen() {
 }
 
 function show(i) {
-  tabs.forEach((tab, index) => tab.classList.toggle('active', index === i));
+  tabs.forEach((tab, index) => {
+    const isActive = index === i;
+    tab.classList.toggle('active', isActive);
+    tab.setAttribute('aria-selected', String(isActive));
+    tab.setAttribute('tabindex', isActive ? '0' : '-1');
+  });
   panels.forEach((panel, index) => panel.classList.toggle('active', index === i));
 
   const activePanel = panels[i];
@@ -1844,7 +2010,39 @@ function show(i) {
   }
 }
 
-window.show = show;
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    show(parseInt(tab.dataset.tab, 10));
+  });
+});
+
+document.querySelector('.tabs').addEventListener('keydown', event => {
+  const currentIndex = tabs.indexOf(event.target);
+  if (currentIndex === -1) return;
+
+  let newIndex;
+  if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+    newIndex = (currentIndex + 1) % tabs.length;
+  } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+    newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+  } else if (event.key === 'Home') {
+    newIndex = 0;
+  } else if (event.key === 'End') {
+    newIndex = tabs.length - 1;
+  } else {
+    return;
+  }
+
+  event.preventDefault();
+  show(newIndex);
+  tabs[newIndex].focus();
+});
+
+document.querySelectorAll('.ov-block[data-target]').forEach(block => {
+  block.addEventListener('click', () => {
+    show(parseInt(block.dataset.target, 10));
+  });
+});
 
 function updateAdminVisibility() {
   versionBadge.classList.toggle('is-unlocked', state.adminUnlocked);
@@ -1860,7 +2058,10 @@ function unlockAdmin() {
   updateAdminVisibility();
 }
 
+let modalTriggerElement = null;
+
 function openAdminModal() {
+  modalTriggerElement = document.activeElement;
   const draft = loadDraft();
   logVersionInput.value = draft.version;
   logTitleInput.value = draft.title;
@@ -1869,11 +2070,33 @@ function openAdminModal() {
   setPreviewContent(logBodyInput.value);
   adminModal.hidden = false;
   document.body.classList.add('admin-open');
+  logVersionInput.focus();
 }
 
 function closeAdminModal() {
   adminModal.hidden = true;
   document.body.classList.remove('admin-open');
+  if (modalTriggerElement) {
+    modalTriggerElement.focus();
+    modalTriggerElement = null;
+  }
+}
+
+function showNotice(message, durationMs) {
+  durationMs = durationMs || 2500;
+  var notice = document.getElementById('saveNotice');
+  if (!notice) {
+    notice = document.createElement('div');
+    notice.id = 'saveNotice';
+    notice.className = 'save-notice';
+    notice.setAttribute('role', 'status');
+    notice.setAttribute('aria-live', 'polite');
+    document.body.appendChild(notice);
+  }
+  notice.textContent = message;
+  notice.hidden = false;
+  clearTimeout(notice._timer);
+  notice._timer = setTimeout(function() { notice.hidden = true; }, durationMs);
 }
 
 function clearDraft() {
@@ -1935,6 +2158,10 @@ function playTrack(index) {
 function handleFirstInteraction() {
   if (state.firstInteractionReceived) return;
   state.firstInteractionReceived = true;
+  state.audioResumeAttempts = 0;
+
+  document.removeEventListener('pointerdown', handleFirstInteraction, { capture: true });
+  document.removeEventListener('keydown', handleFirstInteraction, { capture: true });
 
   if (state.playlist.length) {
     playTrack(state.playlistIndex);
@@ -2002,12 +2229,24 @@ function renderUpdateLog() {
       <div class="update-entry__meta">
         <span class="update-chip">${escapeHtml(log.version || 'Custom')}</span>
         <span>${escapeHtml(formatDate(log.createdAt))}</span>
+        ${state.adminUnlocked ? `<button class="ghost-btn entry-delete-btn" data-log-id="${escapeHtml(log.id)}" type="button" aria-label="Delete this entry">Delete</button>` : ''}
       </div>
       <h3>${escapeHtml(log.title || 'Untitled update')}</h3>
       <div class="markdown-body">${renderMarkdown(log.body)}</div>
     `;
 
     updateLogFeed.appendChild(entry);
+  });
+
+  updateLogFeed.querySelectorAll('.entry-delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (confirm('Delete this log entry? This cannot be undone.')) {
+        state.logs = state.logs.filter(l => l.id !== btn.dataset.logId);
+        persistentStorage.setItem(STORAGE_KEYS.logs, JSON.stringify(state.logs));
+        renderUpdateLog();
+        showNotice('Log entry deleted.');
+      }
+    });
   });
 
   renderStatusSummary();
@@ -2050,13 +2289,13 @@ function syncToastState() {
 }
 
 // Mouse ripple on nodes
-document.addEventListener('mousemove', event => {
+document.addEventListener('mousemove', throttle(event => {
   const node = event.target.closest('.node');
   if (!node) return;
   const rect = node.getBoundingClientRect();
   node.style.setProperty('--mx', ((event.clientX - rect.left) / rect.width * 100) + '%');
   node.style.setProperty('--my', ((event.clientY - rect.top) / rect.height * 100) + '%');
-});
+}, 32));
 
 // Secret unlock
 versionBadge.addEventListener('click', () => {
@@ -2083,14 +2322,23 @@ document.addEventListener('keydown', event => {
   }
 });
 
-logVersionInput.addEventListener('input', saveDraft);
-logTitleInput.addEventListener('input', saveDraft);
+const debouncedSaveDraft = debounce(saveDraft, 400);
+const debouncedPreview = debounce(() => setPreviewContent(logBodyInput.value), 250);
+
+logVersionInput.addEventListener('input', debouncedSaveDraft);
+logTitleInput.addEventListener('input', debouncedSaveDraft);
 logBodyInput.addEventListener('input', () => {
-  saveDraft();
-  setPreviewContent(logBodyInput.value);
+  debouncedSaveDraft();
+  debouncedPreview();
 });
 
-clearDraftButton.addEventListener('click', clearDraft);
+clearDraftButton.addEventListener('click', () => {
+  const hasDraftContent = logVersionInput.value.trim() || logTitleInput.value.trim() || logBodyInput.value.trim();
+  if (!hasDraftContent || confirm('Clear this draft? This cannot be undone.')) {
+    clearDraft();
+    showNotice('Draft cleared.');
+  }
+});
 
 saveLogButton.addEventListener('click', () => {
   const body = logBodyInput.value.trim();
@@ -2112,6 +2360,8 @@ saveLogButton.addEventListener('click', () => {
   if (updateChannel) {
     updateChannel.postMessage({ type: 'log-updated', id: newEntry.id });
   }
+
+  showNotice('Update log entry saved.');
 });
 
 savePlaylistButton.addEventListener('click', () => {
@@ -2136,6 +2386,8 @@ savePlaylistButton.addEventListener('click', () => {
   if (updateChannel) {
     updateChannel.postMessage({ type: 'playlist-updated' });
   }
+
+  showNotice('Playlist saved.');
 });
 
 toastOpenButton.addEventListener('click', () => {
@@ -2146,8 +2398,8 @@ toastDismissButton.addEventListener('click', () => {
   markLatestSeen();
 });
 
-document.addEventListener('pointerdown', handleFirstInteraction, { once: true, capture: true });
-document.addEventListener('keydown', handleFirstInteraction, { once: true, capture: true });
+document.addEventListener('pointerdown', handleFirstInteraction, { capture: true });
+document.addEventListener('keydown', handleFirstInteraction, { capture: true });
 
 soundtrackPlayer.addEventListener('ended', () => {
   if (!state.playlist.length) return;
@@ -2155,6 +2407,7 @@ soundtrackPlayer.addEventListener('ended', () => {
 });
 
 soundtrackPlayer.addEventListener('play', () => {
+  state.audioResumeAttempts = 0;
   updateAudioSummary();
 });
 
@@ -2163,6 +2416,13 @@ soundtrackPlayer.addEventListener('pause', () => {
     updateAudioSummary();
     return;
   }
+
+  if (state.audioResumeAttempts >= MAX_AUDIO_RESUME_ATTEMPTS) {
+    updateAudioSummary('Tap again to resume the soundtrack');
+    return;
+  }
+
+  state.audioResumeAttempts += 1;
 
   window.setTimeout(() => {
     if (!document.hidden && soundtrackPlayer.paused) {
@@ -2175,6 +2435,7 @@ soundtrackPlayer.addEventListener('pause', () => {
 
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && state.firstInteractionReceived && state.playlist.length && soundtrackPlayer.paused) {
+    state.audioResumeAttempts = 0;
     soundtrackPlayer.play().catch(() => {
       updateAudioSummary('Tap again to resume the soundtrack');
     });
@@ -2212,62 +2473,71 @@ if (updateChannel) {
 }
 
 // Dust particles: slightly denser and brighter than before
-for (let i = 0; i < 82; i++) {
-  const mote = document.createElement('div');
-  mote.className = 'mote';
-  const size = Math.random() * 2.9 + .8;
-  const cx = W * (.16 + Math.random() * .66);
-  const cy = H * (Math.random() * .68);
-  const duration = Math.random() * 18 + 10;
-  const delay = Math.random() * -28;
-  const dx1 = (Math.random() - 0.5) * 60;
-  const dy1 = (Math.random() - 0.5) * 50;
-  const dx2 = (Math.random() - 0.5) * 84;
-  const dy2 = (Math.random() - 0.5) * 72;
-  const dx3 = (Math.random() - 0.5) * 58;
-  const dy3 = (Math.random() - 0.5) * 64;
-  const dx4 = (Math.random() - 0.5) * 74;
-  const dy4 = (Math.random() - 0.5) * 42;
-  const op0 = (Math.random() * .34 + .08).toFixed(3);
-  const op1 = (Math.random() * .52 + .22).toFixed(3);
-  const op2 = (Math.random() * .28 + .10).toFixed(3);
+function generateDustParticles() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  dustLayer.innerHTML = '';
 
-  mote.style.cssText = `
-    width:${size}px; height:${size}px;
-    left:${cx}px; top:${cy}px;
-    animation-duration:${duration}s;
-    animation-delay:${delay}s;
-    --dx1:${dx1}px; --dy1:${dy1}px;
-    --dx2:${dx2}px; --dy2:${dy2}px;
-    --dx3:${dx3}px; --dy3:${dy3}px;
-    --dx4:${dx4}px; --dy4:${dy4}px;
-    --op0:${op0}; --op1:${op1}; --op2:${op2};
-  `;
+  for (let i = 0; i < 82; i++) {
+    const mote = document.createElement('div');
+    mote.className = 'mote';
+    const size = Math.random() * 2.9 + .8;
+    const cx = W * (.16 + Math.random() * .66);
+    const cy = H * (Math.random() * .68);
+    const duration = Math.random() * 18 + 10;
+    const delay = Math.random() * -28;
+    const dx1 = (Math.random() - 0.5) * 60;
+    const dy1 = (Math.random() - 0.5) * 50;
+    const dx2 = (Math.random() - 0.5) * 84;
+    const dy2 = (Math.random() - 0.5) * 72;
+    const dx3 = (Math.random() - 0.5) * 58;
+    const dy3 = (Math.random() - 0.5) * 64;
+    const dx4 = (Math.random() - 0.5) * 74;
+    const dy4 = (Math.random() - 0.5) * 42;
+    const op0 = (Math.random() * .34 + .08).toFixed(3);
+    const op1 = (Math.random() * .52 + .22).toFixed(3);
+    const op2 = (Math.random() * .28 + .10).toFixed(3);
 
-  dustLayer.appendChild(mote);
+    mote.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${cx}px; top:${cy}px;
+      animation-duration:${duration}s;
+      animation-delay:${delay}s;
+      --dx1:${dx1}px; --dy1:${dy1}px;
+      --dx2:${dx2}px; --dy2:${dy2}px;
+      --dx3:${dx3}px; --dy3:${dy3}px;
+      --dx4:${dx4}px; --dy4:${dy4}px;
+      --op0:${op0}; --op1:${op1}; --op2:${op2};
+    `;
+
+    dustLayer.appendChild(mote);
+  }
+
+  for (let i = 0; i < 44; i++) {
+    const mote = document.createElement('div');
+    mote.className = 'mote-slow';
+    const size = Math.random() * 3.9 + 1.4;
+    const x = Math.random() * W;
+    const y = Math.random() * H;
+    const duration = Math.random() * 15 + 10;
+    const delay = Math.random() * -22;
+    const fa = (Math.random() * .22 + .06).toFixed(3);
+    const fb = (Math.random() * .34 + .14).toFixed(3);
+
+    mote.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${x}px; top:${y}px;
+      animation-duration:${duration}s;
+      animation-delay:${delay}s;
+      --fa:${fa}; --fb:${fb};
+    `;
+
+    dustLayer.appendChild(mote);
+  }
 }
 
-for (let i = 0; i < 44; i++) {
-  const mote = document.createElement('div');
-  mote.className = 'mote-slow';
-  const size = Math.random() * 3.9 + 1.4;
-  const x = Math.random() * W;
-  const y = Math.random() * H;
-  const duration = Math.random() * 15 + 10;
-  const delay = Math.random() * -22;
-  const fa = (Math.random() * .22 + .06).toFixed(3);
-  const fb = (Math.random() * .34 + .14).toFixed(3);
-
-  mote.style.cssText = `
-    width:${size}px; height:${size}px;
-    left:${x}px; top:${y}px;
-    animation-duration:${duration}s;
-    animation-delay:${delay}s;
-    --fa:${fa}; --fb:${fb};
-  `;
-
-  dustLayer.appendChild(mote);
-}
+generateDustParticles();
+window.addEventListener('resize', debounce(generateDustParticles, 300));
 
 updateAdminVisibility();
 closeAdminModal();
