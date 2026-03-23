@@ -1777,7 +1777,7 @@ body.admin-open { overflow:hidden; }
   </div>
 </div>
 
-<audio id="soundtrackPlayer" preload="auto" playsinline></audio>
+<audio id="soundtrackPlayer" preload="auto" autoplay playsinline></audio>
 
 <script src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"
         integrity="sha384-H+hy9ULve6xfxRkWIh/YOtvDdpXgV2fmAGQkIDTxIgZwNoaoBal14Di2YTMR6MzR"
@@ -1797,7 +1797,8 @@ const STORAGE_KEYS = {
 };
 
 const SOUNDTRACK_VOLUME = 0.56;
-const DEFAULT_SOUNDTRACK_PLAYLIST = [];
+const DEFAULT_SOUNDTRACK_TRACK = 'assets/audio/river-flows-in-you.mp3';
+const DEFAULT_SOUNDTRACK_PLAYLIST = [DEFAULT_SOUNDTRACK_TRACK];
 
 const tabs = [...document.querySelectorAll('.tab')];
 const panels = [...document.querySelectorAll('.layer-panel')];
@@ -1923,7 +1924,12 @@ function loadLogs() {
 }
 
 function loadPlaylist() {
-  const parsed = safeParse(persistentStorage.getItem(STORAGE_KEYS.playlist), DEFAULT_SOUNDTRACK_PLAYLIST);
+  const storedPlaylist = persistentStorage.getItem(STORAGE_KEYS.playlist);
+  if (storedPlaylist === null) {
+    return DEFAULT_SOUNDTRACK_PLAYLIST.slice();
+  }
+
+  const parsed = safeParse(storedPlaylist, DEFAULT_SOUNDTRACK_PLAYLIST);
   return Array.isArray(parsed)
     ? parsed.map(item => String(item || '').trim()).filter(Boolean)
     : DEFAULT_SOUNDTRACK_PLAYLIST.slice();
@@ -2134,18 +2140,35 @@ function getTrackLabel(url) {
   }
 }
 
+function detachFirstInteractionListeners() {
+  document.removeEventListener('pointerdown', handleFirstInteraction, { capture: true });
+  document.removeEventListener('keydown', handleFirstInteraction, { capture: true });
+}
+
+function markSoundtrackUnlocked() {
+  state.firstInteractionReceived = true;
+  state.audioResumeAttempts = 0;
+  detachFirstInteractionListeners();
+}
+
+function prepareTrack(index) {
+  state.playlistIndex = ((index % state.playlist.length) + state.playlist.length) % state.playlist.length;
+  soundtrackPlayer.loop = state.playlist.length <= 1;
+  soundtrackPlayer.src = state.playlist[state.playlistIndex];
+  soundtrackPlayer.volume = SOUNDTRACK_VOLUME;
+}
+
 function playTrack(index) {
   if (!state.playlist.length) {
     soundtrackPlayer.pause();
     soundtrackPlayer.removeAttribute('src');
+    soundtrackPlayer.loop = false;
     soundtrackPlayer.load();
     updateAudioSummary();
     return;
   }
 
-  state.playlistIndex = ((index % state.playlist.length) + state.playlist.length) % state.playlist.length;
-  soundtrackPlayer.src = state.playlist[state.playlistIndex];
-  soundtrackPlayer.volume = SOUNDTRACK_VOLUME;
+  prepareTrack(index);
 
   const playPromise = soundtrackPlayer.play();
   if (playPromise && typeof playPromise.then === 'function') {
@@ -2155,13 +2178,34 @@ function playTrack(index) {
   }
 }
 
+function primeSoundtrackAutoplay() {
+  if (!state.playlist.length) {
+    updateAudioSummary('No playlist saved');
+    return;
+  }
+
+  prepareTrack(state.playlistIndex);
+
+  const playPromise = soundtrackPlayer.play();
+  if (playPromise && typeof playPromise.then === 'function') {
+    playPromise
+      .then(() => {
+        markSoundtrackUnlocked();
+        updateAudioSummary('Autoplay active in the background');
+      })
+      .catch(() => {
+        updateAudioSummary('Autoplay primed. Some browsers still require one click before audio starts');
+      });
+    return;
+  }
+
+  markSoundtrackUnlocked();
+  updateAudioSummary('Autoplay active in the background');
+}
+
 function handleFirstInteraction() {
   if (state.firstInteractionReceived) return;
-  state.firstInteractionReceived = true;
-  state.audioResumeAttempts = 0;
-
-  document.removeEventListener('pointerdown', handleFirstInteraction, { capture: true });
-  document.removeEventListener('keydown', handleFirstInteraction, { capture: true });
+  markSoundtrackUnlocked();
 
   if (state.playlist.length) {
     playTrack(state.playlistIndex);
@@ -2371,6 +2415,7 @@ savePlaylistButton.addEventListener('click', () => {
   if (!state.playlist.length) {
     soundtrackPlayer.pause();
     soundtrackPlayer.removeAttribute('src');
+    soundtrackPlayer.loop = false;
     soundtrackPlayer.load();
     state.playlistIndex = 0;
     updateAudioSummary('Playlist cleared');
@@ -2402,7 +2447,7 @@ document.addEventListener('pointerdown', handleFirstInteraction, { capture: true
 document.addEventListener('keydown', handleFirstInteraction, { capture: true });
 
 soundtrackPlayer.addEventListener('ended', () => {
-  if (!state.playlist.length) return;
+  if (!state.playlist.length || soundtrackPlayer.loop) return;
   playTrack(state.playlistIndex + 1);
 });
 
@@ -2543,8 +2588,8 @@ updateAdminVisibility();
 closeAdminModal();
 hideToast();
 renderUpdateLog();
-updateAudioSummary();
 setPreviewContent('');
+primeSoundtrackAutoplay();
 </script>
 </body>
 </html>
