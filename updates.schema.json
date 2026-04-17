@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://deeptutor-ai.github.io/Log-update/updates.schema.json",
+  "title": "QTS Update Log Feed",
+  "description": "Schema for updates.json — canonical changelog loaded by index.html loadLogsWithSeed().",
+  "type": "object",
+  "required": ["entries"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Reference back to this schema (optional, for IDE autocomplete)."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp of when this feed was last regenerated."
+    },
+    "source_repo": {
+      "type": "string",
+      "description": "Human-readable pointer to the repo the entries originated from."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-form maintainer notes (not rendered in the UI)."
+    },
+    "entries": {
+      "type": "array",
+      "description": "Release entries. Renderer sorts newest-first by createdAt.",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "body", "createdAt"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable unique identifier. Format: log-YYYY-MM-DD-NNN or log-<epoch>-<slug>.",
+            "pattern": "^log-[A-Za-z0-9_-]+$"
+          },
+          "version": {
+            "type": "string",
+            "description": "Semver-ish label (e.g. 2.5.0, 2.5.0-wave1.3). Optional; defaults to 'Custom' in UI when empty."
+          },
+          "title": {
+            "type": "string",
+            "description": "Short release headline shown in the entry header.",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "body": {
+            "type": "string",
+            "description": "Markdown body. Rendered via marked.js + DOMPurify sanitization.",
+            "minLength": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 timestamp used for sort order and Published field."
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
