@@ -1,9 +1,16 @@
 {
   "$schema": "./updates.schema.json",
-  "generated_at": "2026-04-17T08:20:00+07:00",
+  "generated_at": "2026-04-21T19:57:00+07:00",
   "source_repo": "quantumv2 (private)",
-  "notes": "Canonical changelog feed. Loaded by index.html via loadLogsWithSeed() when the browser localStorage cache is empty. Entries sorted newest-first before render.",
+  "notes": "Canonical changelog feed. Loaded by index.html via loadLogsWithSeed() on every boot, merged with any existing browser drafts, and sorted newest-first before render.",
   "entries": [
+    {
+      "id": "log-2026-04-21-001",
+      "version": "2.7.1-wave1-recap",
+      "title": "Wave 1 ปิดงานแล้ว",
+      "body": "# Wave 1 ปิดงานแล้ว\n\nสรุปสั้น ๆ: Wave 1 เสร็จเรียบร้อยแล้วครับ ตอนนี้ของหลักพร้อมใช้และเปิดแบบค่อยเป็นค่อยไปได้ โดยไม่ไปกระทบพฤติกรรมเดิมของระบบ\n\n## มีอะไรบ้าง\n\n- มีตัวดูแลไม้ที่เปิดอยู่ เช่น trailing, partial take profit, breakeven และปิดทั้งชุด\n- มีตัวกันความเสี่ยงเพิ่ม เช่น streak guard, gap guard และเช็ค drawdown\n- มี symbol cache ช่วยลดการเรียกข้อมูลซ้ำจากโบรก\n- มีชุดทดสอบ 29 เคสไว้คอยเช็คว่าของหลักยังทำงานเหมือนเดิม\n\n## สรุป\n\nWave 1 พร้อมแล้วสำหรับการใช้งานจริงแบบปลอดภัย ส่วน Wave 2 จะเริ่มโหมดเรียนรู้และปรับค่าให้ฉลาดขึ้นต่อจากนี้",
+      "createdAt": "2026-04-21T19:57:00+07:00"
+    },
     {
       "id": "log-2026-04-17-004",
       "version": "2.7.0-wave1-complete",

@@ -1753,8 +1753,9 @@ body.admin-open { overflow:hidden; }
         <div class="admin-actions">
           <button class="admin-btn" id="saveLogButton" type="button">Save Update Log</button>
           <button class="ghost-btn" id="clearDraftButton" type="button">Clear Draft</button>
+          <button class="ghost-btn" id="exportJsonButton" type="button">Export updates.json</button>
         </div>
-        <p class="audio-hint">Saved entries stay in browser storage for this viewer file. The popup uses the latest published entry as its alert source.</p>
+        <p class="audio-hint">Saved entries stay in browser storage for this viewer file. The popup uses the latest published entry as its alert source. Use <b>Export updates.json</b> to download the feed file and commit it back to the Log-update repo so every visitor sees the same changelog.</p>
       </div>
       <div class="admin-side-stack">
         <div class="admin-section">
@@ -1818,6 +1819,7 @@ const logBodyInput = document.getElementById('logBodyInput');
 const logPreview = document.getElementById('logPreview');
 const clearDraftButton = document.getElementById('clearDraftButton');
 const saveLogButton = document.getElementById('saveLogButton');
+const exportJsonButton = document.getElementById('exportJsonButton');
 const playlistInput = document.getElementById('playlistInput');
 const savePlaylistButton = document.getElementById('savePlaylistButton');
 const updateLogFeed = document.getElementById('updateLogFeed');
@@ -1849,8 +1851,11 @@ const state = {
   playlistIndex: 0,
   logs: loadLogs(),
   playlist: loadPlaylist(),
-  audioResumeAttempts: 0
+  audioResumeAttempts: 0,
+  seedHydrated: false
 };
+
+const SEED_FEED_URL = './updates.json';
 
 const MAX_AUDIO_RESUME_ATTEMPTS = 3;
 
@@ -1921,6 +1926,69 @@ function sortByNewest(a, b) {
 function loadLogs() {
   const parsed = safeParse(persistentStorage.getItem(STORAGE_KEYS.logs), []);
   return Array.isArray(parsed) ? parsed.filter(Boolean).sort(sortByNewest) : [];
+}
+
+function mergeLogsWithSeed(existing, seed) {
+  const mergedById = new Map();
+
+  existing.forEach(log => {
+    if (log && log.id) {
+      mergedById.set(log.id, log);
+    }
+  });
+
+  seed.forEach(log => {
+    if (log && log.id) {
+      mergedById.set(log.id, log);
+    }
+  });
+
+  return Array.from(mergedById.values()).sort(sortByNewest);
+}
+
+// Fetch canonical feed from updates.json on every boot and merge it into the
+// browser cache. This keeps visitors on the same published changelog baseline
+// while still preserving any extra per-browser admin drafts.
+async function loadLogsWithSeed() {
+  const existing = loadLogs();
+
+  try {
+    const response = await fetch(SEED_FEED_URL, { cache: 'no-store' });
+    if (!response.ok) {
+      state.seedHydrated = true;
+      return existing;
+    }
+    const payload = await response.json();
+    const seed = Array.isArray(payload && payload.entries) ? payload.entries.filter(Boolean) : [];
+    const merged = mergeLogsWithSeed(existing, seed);
+    if (merged.length > 0) {
+      persistentStorage.setItem(STORAGE_KEYS.logs, JSON.stringify(merged));
+    }
+    state.seedHydrated = true;
+    return merged;
+  } catch (error) {
+    state.seedHydrated = true;
+    return existing;
+  }
+}
+
+function downloadUpdatesJson() {
+  const payload = {
+    $schema: './updates.schema.json',
+    generated_at: new Date().toISOString(),
+    source_repo: 'quantumv2 (private)',
+    notes: 'Exported from admin editor. Commit this file to the Log-update repo so every visitor sees the same changelog.',
+    entries: state.logs.slice().sort(sortByNewest)
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2) + '\n'], { type: 'application/json' });
+  const href = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = href;
+  anchor.download = 'updates.json';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(href);
 }
 
 function loadPlaylist() {
@@ -2439,6 +2507,15 @@ toastOpenButton.addEventListener('click', () => {
   show(5);
 });
 
+exportJsonButton.addEventListener('click', () => {
+  if (!state.logs.length) {
+    showNotice('No log entries to export yet.');
+    return;
+  }
+  downloadUpdatesJson();
+  showNotice('updates.json downloaded. Commit it to the Log-update repo.');
+});
+
 toastDismissButton.addEventListener('click', () => {
   markLatestSeen();
 });
@@ -2590,6 +2667,17 @@ hideToast();
 renderUpdateLog();
 setPreviewContent('');
 primeSoundtrackAutoplay();
+
+// Hydrate the canonical changelog from updates.json once on boot. The merge
+// keeps admin drafts, but published entries from the repo always flow in so the
+// live site shows new updates even for returning visitors.
+(async () => {
+  const seeded = await loadLogsWithSeed();
+  if (!state.seedHydrated) return;
+  if (seeded.length === 0) return;
+  state.logs = seeded;
+  renderUpdateLog();
+})();
 </script>
 </body>
 </html>
