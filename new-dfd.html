@@ -3,220 +3,655 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quantum Tick Scalper v2.0 — New DFD</title>
+<meta name="description" content="New DFD blueprint for Quantum Tick Scalper. Wave-by-wave evolution map from Wave 1 to Wave 4 while keeping the legacy DFD page intact.">
+<title>Quantum Tick Scalper v2.0 — New DFD Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    color-scheme: dark;
-    --bg: #0f0c07;
-    --bg2: #171209;
-    --bg3: #1e1810;
-    --border: #302618;
-    --text: #e2d4b8;
-    --muted: #6a5c48;
-    --amber: #c8942a;
-    --amber2: #e0aa3c;
-    --cream: #c8a870;
-    --font-hd: 'Playfair Display', Georgia, serif;
-    --font-bd: 'Crimson Pro', Georgia, serif;
-    --font-mn: 'DM Mono', 'Courier New', monospace;
-  }
+:root {
+  --bg: #0f0c07;
+  --bg2: #171209;
+  --bg3: #1e1810;
+  --border: #302618;
+  --border2: #3a2e1e;
+  --text: #e2d4b8;
+  --muted: #6a5c48;
+  --cream: #c8a870;
+  --amber: #c8942a;
+  --amber2: #e0aa3c;
+  --amber3: #f0c860;
+  --sage: #4e7c5a;
+  --sage2: #68a078;
+  --slate: #3a5870;
+  --slate2: #527898;
+  --rust: #9a3c2a;
+  --rust2: #c05040;
+  --font-hd: 'Playfair Display', Georgia, serif;
+  --font-bd: 'Crimson Pro', Georgia, serif;
+  --font-mn: 'DM Mono', 'Courier New', monospace;
+  --shadow: 0 16px 48px rgba(0,0,0,.58);
+}
 
-  * { box-sizing: border-box; }
-  html, body {
-    margin: 0;
-    min-height: 100%;
-    background:
-      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(200,148,42,.05) 0%, transparent 65%),
-      linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
-    color: var(--text);
-    font-family: var(--font-bd);
-  }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 70% at 50% -12%, rgba(200,148,42,.06) 0%, transparent 58%),
+    linear-gradient(180deg, #141009 0%, #100d08 42%, #0f0c07 100%);
+  color: var(--text);
+  font-family: var(--font-bd);
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+body::before {
+  background:
+    radial-gradient(circle at 12% 12%, rgba(224,170,60,.08) 0%, transparent 24%),
+    radial-gradient(circle at 90% 10%, rgba(104,160,120,.06) 0%, transparent 22%),
+    radial-gradient(circle at 84% 88%, rgba(82,120,152,.08) 0%, transparent 22%);
+  filter: blur(22px);
+}
+body::after {
+  background-image: linear-gradient(rgba(255,255,255,.012) 1px, transparent 1px);
+  background-size: 100% 4px;
+  opacity: .16;
+  mix-blend-mode: overlay;
+}
 
-  .boot-shell {
-    min-height: 100vh;
-    display: grid;
-    place-items: center;
-    padding: 32px;
-    text-align: center;
-  }
+.page {
+  position: relative;
+  z-index: 1;
+  width: min(1260px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 24px 0 64px;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 18px 0 20px;
+  border-bottom: 1px solid var(--border2);
+}
+.eyebrow,
+.kicker,
+.label {
+  font-family: var(--font-mn);
+  font-size: 11px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+.eyebrow { color: var(--muted); }
+.title {
+  margin: 8px 0 10px;
+  font-family: var(--font-hd);
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.05;
+}
+.title em {
+  color: var(--amber3);
+  font-style: italic;
+}
+.lead {
+  margin: 0;
+  max-width: 820px;
+  color: var(--cream);
+  font-size: 18px;
+  line-height: 1.8;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(224,170,60,.24);
+  background: rgba(38,32,21,.82);
+  font-family: var(--font-mn);
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(224,170,60,.56);
+  box-shadow: 0 0 20px rgba(224,170,60,.12);
+}
+.btn.primary {
+  background: linear-gradient(180deg, rgba(224,170,60,.16) 0%, rgba(38,32,21,.92) 100%);
+  color: var(--amber3);
+}
+.card {
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(30,24,16,.97) 0%, rgba(23,18,9,.97) 100%);
+  box-shadow: var(--shadow);
+}
 
-  .boot-card {
-    width: min(640px, 100%);
-    padding: 28px 24px;
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    background: rgba(23, 18, 9, 0.86);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(8px);
-  }
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr);
+  gap: 16px;
+  margin-top: 22px;
+}
+.hero .card { padding: 22px; }
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(224,170,60,.24);
+  background: rgba(38,32,21,.78);
+  color: var(--amber3);
+  font-family: var(--font-mn);
+  font-size: 11px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+.hero h2 {
+  margin: 14px 0 12px;
+  font-family: var(--font-hd);
+  font-size: clamp(26px, 4vw, 42px);
+  line-height: 1.1;
+}
+.hero p { margin: 0; color: var(--cream); line-height: 1.85; font-size: 17px; }
+.points { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.point {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(38,32,21,.7);
+  border: 1px solid rgba(224,170,60,.14);
+  font-family: var(--font-mn);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.stat-grid { display: grid; gap: 10px; }
+.stat {
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(38,32,21,.7);
+  border: 1px solid rgba(224,170,60,.12);
+}
+.stat strong {
+  display: block;
+  margin-bottom: 5px;
+  font-family: var(--font-hd);
+  font-size: 18px;
+}
+.stat span { color: var(--cream); line-height: 1.6; }
 
-  .boot-kicker {
-    margin: 0 0 10px;
-    font-family: var(--font-mn);
-    color: var(--muted);
-    letter-spacing: 0.22em;
-    font-size: 11px;
-    text-transform: uppercase;
-  }
+.nav {
+  position: sticky;
+  top: 12px;
+  z-index: 10;
+  margin: 16px 0 24px;
+  padding: 12px;
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  background: rgba(23,18,9,.9);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(224,170,60,.16);
+  background: rgba(38,32,21,.74);
+  font-family: var(--font-mn);
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.pill span { color: var(--muted); }
 
-  .boot-title {
-    margin: 0;
-    font-family: var(--font-hd);
-    font-size: clamp(28px, 5vw, 44px);
-    line-height: 1.1;
-    color: var(--text);
-  }
+.compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.compare .card { padding: 22px; }
+.compare h3 {
+  margin: 10px 0 8px;
+  font-family: var(--font-hd);
+  font-size: 22px;
+}
+.compare p { margin: 0; color: var(--cream); line-height: 1.8; }
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 10px;
+}
+.list li {
+  position: relative;
+  padding-left: 18px;
+  line-height: 1.65;
+}
+.list li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--amber2);
+}
 
-  .boot-title em {
-    color: var(--amber2);
-    font-style: italic;
-  }
+.matrix {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+.matrix .card { padding: 18px; }
+.matrix h3 {
+  margin: 12px 0 0;
+  font-family: var(--font-hd);
+  font-size: 22px;
+}
+.matrix p {
+  margin: 12px 0 0;
+  color: var(--cream);
+  line-height: 1.7;
+}
+.meta-line {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(224,170,60,.12);
+  font-family: var(--font-mn);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 
-  .boot-copy {
-    margin: 16px 0 0;
-    color: var(--cream);
-    font-size: 18px;
-    line-height: 1.7;
-  }
+.wave {
+  margin-top: 16px;
+  padding: 24px;
+  border-left: 4px solid var(--accent);
+  scroll-margin-top: 90px;
+}
+.wave h3 {
+  margin: 8px 0 10px;
+  font-family: var(--font-hd);
+  font-size: clamp(24px, 3.2vw, 36px);
+}
+.wave p.summary { margin: 0; color: var(--cream); line-height: 1.8; font-size: 17px; }
+.wave-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.chip {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(38,32,21,.7);
+  border: 1px solid rgba(224,170,60,.12);
+  font-family: var(--font-mn);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.wave-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+.sub {
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(38,32,21,.7);
+  border: 1px solid rgba(224,170,60,.12);
+}
+.sub h4 {
+  margin: 0 0 10px;
+  font-family: var(--font-hd);
+  font-size: 18px;
+}
+.sub-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+.sub-list li {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(19,16,10,.52);
+  border: 1px solid rgba(224,170,60,.1);
+  line-height: 1.6;
+}
+.callout {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(38,32,21,.9);
+  border: 1px solid rgba(224,170,60,.16);
+  font-family: var(--font-mn);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--amber3);
+}
+.footer {
+  margin-top: 20px;
+  padding: 22px;
+}
+.footer h3 {
+  margin: 0 0 8px;
+  font-family: var(--font-hd);
+  font-size: 22px;
+}
+.footer p { margin: 0; color: var(--cream); line-height: 1.8; }
+.footer-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
 
-  .boot-status {
-    margin: 18px auto 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px;
-    border-radius: 999px;
-    border: 1px solid rgba(224, 170, 60, 0.32);
-    background: rgba(38, 32, 21, 0.72);
-    font-family: var(--font-mn);
-    font-size: 12px;
-    color: var(--amber2);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+@media (max-width: 1100px) {
+  .hero,
+  .compare,
+  .matrix,
+  .wave-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    background: var(--amber2);
-    box-shadow: 0 0 12px rgba(224, 170, 60, 0.75);
-    animation: pulse 1.3s ease-in-out infinite;
+}
+@media (max-width: 760px) {
+  .page { width: min(100% - 28px, 1260px); padding: 18px 0 56px; }
+  .header,
+  .hero,
+  .wave-grid,
+  .compare,
+  .matrix {
+    grid-template-columns: 1fr;
   }
-
-  @keyframes pulse {
-    0%, 100% { transform: scale(0.8); opacity: 0.6; }
-    50% { transform: scale(1.15); opacity: 1; }
-  }
-
-  .boot-links {
-    margin-top: 20px;
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .boot-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    padding: 0 18px;
-    border-radius: 999px;
-    border: 1px solid rgba(224, 170, 60, 0.28);
-    background: rgba(38, 32, 21, 0.8);
-    color: var(--text);
-    text-decoration: none;
-    font-family: var(--font-mn);
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .boot-link:hover {
-    transform: translateY(-1px);
-    border-color: rgba(224, 170, 60, 0.56);
-    box-shadow: 0 0 20px rgba(224, 170, 60, 0.12);
-  }
-
-  noscript {
-    display: block;
-    margin-top: 14px;
-    color: #d7c8a8;
-    font-size: 16px;
-    line-height: 1.6;
-  }
+  .header { display: grid; gap: 18px; }
+  .wave-head { display: grid; gap: 14px; }
+  .chips { justify-content: flex-start; }
+  .actions { justify-content: flex-start; }
+  .nav { top: 0; }
+  .hero .card,
+  .compare .card,
+  .matrix .card,
+  .wave,
+  .footer { padding: 20px; }
+}
 </style>
 </head>
 <body>
-  <div class="boot-shell" id="bootShell">
-    <div class="boot-card">
-      <p class="boot-kicker">Quantum Tick Scalper</p>
-      <h1 class="boot-title">Loading <em>New DFD</em></h1>
-      <p class="boot-copy">Preparing the cloned DFD reference so the original page stays intact.</p>
-      <div class="boot-status"><span class="dot"></span> Cloning main page</div>
-      <div class="boot-links">
-        <a class="boot-link" href="./index.html">Open Main DFD</a>
+  <div class="page">
+    <header class="header">
+      <div>
+        <div class="eyebrow">Blueprint view · legacy page preserved</div>
+        <h1 class="title">Quantum Tick Scalper — <em>New DFD</em></h1>
+        <p class="lead">หน้านี้ไม่ได้ clone runtime DFD เดิม แต่จัดเป็น wave-driven blueprint เพื่อให้เห็นว่าแต่ละ wave เปลี่ยนอะไร เพิ่มอะไร และปลดล็อกอะไรต่อจาก wave ก่อนหน้า</p>
       </div>
-      <noscript>
-        JavaScript is required for the cloned page shell. You can still open the original page using the link above.
-      </noscript>
-    </div>
+      <div class="actions">
+        <a class="btn primary" href="./index.html">Legacy DFD</a>
+        <a class="btn" href="./index.html#p5">Update Log</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="card">
+        <span class="tag">Why this page exists</span>
+        <h2>From runtime map to evolution story</h2>
+        <p>ใช้หน้าเดิมเพื่อดู data flow. ใช้หน้านี้เพื่ออ่าน evolution ตาม wave ตั้งแต่ safety layer ไปจนถึง learning, crew routing และ GA-based proposal layer.</p>
+        <div class="points">
+          <span class="point">Legacy intact</span>
+          <span class="point">Wave progression visible</span>
+          <span class="point">Human approval preserved</span>
+          <span class="point">Evolution stays proposal-only</span>
+        </div>
+      </div>
+
+      <aside class="card">
+        <div class="kicker" style="color: var(--muted);">Wave lens</div>
+        <div class="stat-grid">
+          <div class="stat"><strong>Wave 1 · Safety</strong><span>PositionGovernor, risk hardening, symbol cache, regression tests</span></div>
+          <div class="stat"><strong>Wave 2 · Learning</strong><span>Param registry, shadow mode, approval UI, rollback gates</span></div>
+          <div class="stat"><strong>Wave 3 · Crew</strong><span>Skill router, planner/critic, cache layer, trust scoring</span></div>
+          <div class="stat"><strong>Wave 4 · Evolution</strong><span>GA runner, WFO + Monte Carlo, schedule, queue integration</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <nav class="nav" aria-label="Wave navigation">
+      <a class="pill" href="#wave-1"><span>01</span>Wave 1 · MVP Closure</a>
+      <a class="pill" href="#wave-2"><span>02</span>Wave 2 · Online Learning</a>
+      <a class="pill" href="#wave-3"><span>03</span>Wave 3 · Crew Router</a>
+      <a class="pill" href="#wave-4"><span>04</span>Wave 4 · Evolution</a>
+    </nav>
+
+    <section class="compare">
+      <article class="card">
+        <span class="tag">Legacy DFD</span>
+        <h3>Runtime flow and component layout</h3>
+        <p>เหมาะสำหรับอ่านว่า tick เดินจาก signal ไป AI, risk gate, order manager และ update log อย่างไร</p>
+        <ul class="list">
+          <li>โฟกัสที่โครงสร้างระบบและการไหลของข้อมูล</li>
+          <li>ใช้ tabs และ layer-based reading order</li>
+          <li>ตอบคำถามแบบ “ตอนนี้อะไรเรียกอะไร”</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <span class="tag">New DFD blueprint</span>
+        <h3>Wave story and evolution path</h3>
+        <p>เหมาะสำหรับอ่านว่าแต่ละ wave เปลี่ยนอะไร เพิ่มอะไร และระบบโตขึ้นอย่างไรโดยไม่ทำลายของเดิม</p>
+        <ul class="list">
+          <li>โฟกัสที่การเปลี่ยนแปลงตาม release wave</li>
+          <li>อ่านจาก baseline → learning → crew → evolution</li>
+          <li>ตอบคำถามแบบ “wave นี้เพิ่มอะไรกับทำไมต้องมี”</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="matrix">
+      <article class="card">
+        <span class="label" style="color: var(--amber3);">Wave 1</span>
+        <h3>MVP Closure</h3>
+        <p>ปิดช่องว่างก่อน self-learning: เพิ่มตัวดูแลไม้, hardening ด้าน risk, symbol cache และ regression tests</p>
+        <div class="meta-line">Outcome · baseline still opt-in</div>
+      </article>
+      <article class="card">
+        <span class="label" style="color: var(--sage2);">Wave 2</span>
+        <h3>Online Learning</h3>
+        <p>เริ่มวงจรเรียนรู้ปลอดภัย: param registry, shadow mode, reflection→recommendation, approval UI</p>
+        <div class="meta-line">Outcome · human approval remains the gate</div>
+      </article>
+      <article class="card">
+        <span class="label" style="color: var(--slate2);">Wave 3</span>
+        <h3>Skill Router</h3>
+        <p>ทำ AI ให้เลือก brain ตาม context: skill registry, planner/critic consensus, cache layer, trust scoring</p>
+        <div class="meta-line">Outcome · better routing, lower API waste</div>
+      </article>
+      <article class="card">
+        <span class="label" style="color: var(--rust2);">Wave 4</span>
+        <h3>Evolution Engine</h3>
+        <p>เพิ่มระบบ GA ที่ผ่าน WFO + Monte Carlo และส่งเข้า queue ให้คนอนุมัติเท่านั้น</p>
+        <div class="meta-line">Outcome · proposals only, no auto-commit</div>
+      </article>
+    </section>
+
+    <section class="wave card" id="wave-1" style="--accent: var(--amber2);">
+      <div class="wave-head">
+        <div>
+          <div class="kicker" style="color: var(--muted);">Wave 1 · MVP Closure</div>
+          <h3>ปิดช่องว่างพื้นฐานให้ระบบนิ่งก่อนขยับไปสู่ self-learning</h3>
+          <p class="summary">Wave 1 ทำให้ baseline EA แข็งแรงขึ้นโดยไม่แตะพฤติกรรมเดิม: เพิ่ม module ที่ README เคลมไว้แต่ยังไม่มีจริง และตั้งทุก feature ใหม่เป็น opt-in</p>
+        </div>
+        <div class="chips">
+          <span class="chip">Position Governor</span>
+          <span class="chip">Risk Hardening</span>
+          <span class="chip">Symbol Meta Cache</span>
+          <span class="chip">Regression Tests</span>
+        </div>
+      </div>
+      <div class="wave-grid">
+        <div class="sub">
+          <h4>What changed</h4>
+          <ul class="sub-list">
+            <li>เพิ่ม `PositionGovernor` สำหรับ trailing, partial TP, breakeven และ net-exit basket</li>
+            <li>เพิ่ม risk hardening เช่น streak guard, gap guard และ equity HWM</li>
+            <li>เพิ่ม `SymbolMetaCache` เพื่อลดการเรียก broker metadata ซ้ำ ๆ</li>
+            <li>เพิ่ม regression suite เพื่อกัน behavior drift</li>
+          </ul>
+        </div>
+        <div class="sub">
+          <h4>Why it matters</h4>
+          <ul class="sub-list">
+            <li>baseline ยังทำงานเหมือนเดิมถ้าไม่เปิด flag</li>
+            <li>position lifecycle แยกจาก entry logic ชัดเจน</li>
+            <li>ก่อน wave 2 ระบบมี safety floor ที่น่าเชื่อถือกว่าเดิม</li>
+          </ul>
+          <div class="callout">Visible effect: เพิ่ม control และความปลอดภัย แต่ไม่เปลี่ยน default live behavior</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wave card" id="wave-2" style="--accent: var(--sage2);">
+      <div class="wave-head">
+        <div>
+          <div class="kicker" style="color: var(--muted);">Wave 2 · Online Learning</div>
+          <h3>สร้างวงจรเรียนรู้ที่ปลอดภัยด้วย registry, shadow mode และ approval gate</h3>
+          <p class="summary">Wave 2 เปลี่ยนจาก config แบบ compile-time ไปสู่ระบบที่ปรับ runtime ได้ แต่ยังต้องผ่าน shadow test และ human approval ก่อน commit จริง</p>
+        </div>
+        <div class="chips">
+          <span class="chip">Param Registry</span>
+          <span class="chip">Shadow Mode</span>
+          <span class="chip">Approve UI</span>
+          <span class="chip">Rollback</span>
+        </div>
+      </div>
+      <div class="wave-grid">
+        <div class="sub">
+          <h4>What changed</h4>
+          <ul class="sub-list">
+            <li>สร้าง `ParamRegistry` ให้ EA อ่าน override ได้ใน `OnInit()`</li>
+            <li>เพิ่ม shadow mode เพื่อทดสอบ param ใหม่แบบไม่แตะ live order</li>
+            <li>สร้าง reflection → recommendation pipeline สำหรับเสนอค่าปรับปรุง</li>
+            <li>เพิ่ม dashboard approve UI และ safety gates</li>
+          </ul>
+        </div>
+        <div class="sub">
+          <h4>Why it matters</h4>
+          <ul class="sub-list">
+            <li>ระบบเริ่ม evolve ได้โดยยังมีคนคุมประตู</li>
+            <li>แต่ละ proposal มี audit trail และย้อนกลับได้</li>
+            <li>ความต่างจากหน้าเดิมคือเน้น learning loop ไม่ใช่ runtime flow</li>
+          </ul>
+          <div class="callout">Visible effect: เริ่มมี “แนะนำ → ทดสอบ → อนุมัติ” แทนการแก้ค่าด้วยมืออย่างเดียว</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wave card" id="wave-3" style="--accent: var(--slate2);">
+      <div class="wave-head">
+        <div>
+          <div class="kicker" style="color: var(--muted);">Wave 3 · Crew Router</div>
+          <h3>ยกระดับ AI ให้เลือก skill ตาม context และมี planner/critic consensus</h3>
+          <p class="summary">Wave 3 เปลี่ยน AI layer จาก webhook ครั้งเดียวเป็น crew ที่รู้จัก skill ของตัวเอง ทำให้ decision routing ฉลาดขึ้น และลดค่าเรียกซ้ำด้วย cache</p>
+        </div>
+        <div class="chips">
+          <span class="chip">Skill Registry</span>
+          <span class="chip">Planner / Critic</span>
+          <span class="chip">Cache Layer</span>
+          <span class="chip">Trust Scoring</span>
+        </div>
+      </div>
+      <div class="wave-grid">
+        <div class="sub">
+          <h4>What changed</h4>
+          <ul class="sub-list">
+            <li>เพิ่ม skill registry สำหรับ regime-specific brains</li>
+            <li>เพิ่ม planner + critic crew เพื่อหาคำตอบที่มี consensus มากขึ้น</li>
+            <li>เพิ่ม cache layer เพื่อลด webhook calls ซ้ำ ๆ</li>
+            <li>เพิ่ม per-skill trust score เพื่อปรับ routing จาก outcome ย้อนกลับ</li>
+          </ul>
+        </div>
+        <div class="sub">
+          <h4>Why it matters</h4>
+          <ul class="sub-list">
+            <li>AI ไม่ใช่ก้อนเดียวอีกต่อไป แต่เป็นระบบ skill-aware</li>
+            <li>ลดโอกาสตอบมั่วจากการใช้ context ผิด regime</li>
+            <li>หน้าใหม่ควรเล่า evolution นี้ให้เห็นว่าระบบ “คิด” ต่างจาก wave 2 อย่างไร</li>
+          </ul>
+          <div class="callout">Visible effect: AI layer แบ่งหน้าที่ชัดขึ้น และเริ่มมีการชั่งน้ำหนักระหว่าง skill</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wave card" id="wave-4" style="--accent: var(--rust2);">
+      <div class="wave-head">
+        <div>
+          <div class="kicker" style="color: var(--muted);">Wave 4 · Evolution Engine</div>
+          <h3>เพิ่มระบบเสนอค่าปรับปรุงอัตโนมัติผ่าน GA, WFO และ Monte Carlo</h3>
+          <p class="summary">Wave 4 คือชั้น evolution ที่ค้นหา parameter set ใหม่จากข้อมูลย้อนหลัง แต่ยังไม่ auto-commit — ทุกข้อเสนอจะผ่าน validation หนัก ๆ และส่งให้คนอนุมัติเท่านั้น</p>
+        </div>
+        <div class="chips">
+          <span class="chip">GA Runner</span>
+          <span class="chip">WFO Gate</span>
+          <span class="chip">Monte Carlo</span>
+          <span class="chip">Dashboard Queue</span>
+        </div>
+      </div>
+      <div class="wave-grid">
+        <div class="sub">
+          <h4>What changed</h4>
+          <ul class="sub-list">
+            <li>สร้าง GA runner สำหรับค้นหา candidate param sets</li>
+            <li>ผ่าน WFO gate และ Monte Carlo validation ก่อนเสนอผล</li>
+            <li>scheduler + notification ช่วยรันเป็นรอบตามเวลา</li>
+            <li>ผลลัพธ์ไปอยู่ใน dashboard queue เดียวกับ approval flow ของ wave 2</li>
+          </ul>
+        </div>
+        <div class="sub">
+          <h4>Why it matters</h4>
+          <ul class="sub-list">
+            <li>evolution กลายเป็น proposal layer ไม่ใช่ auto-trading layer</li>
+            <li>human approval ยังคงเป็นจุดสุดท้ายก่อน commit</li>
+            <li>หน้านี้จึงต่างจาก legacy DFD เพราะเล่าอนาคตของระบบ ไม่ใช่ runtime map</li>
+          </ul>
+          <div class="callout">Visible effect: ระบบเสนอ candidate ที่ผ่าน validation ได้ แต่ยังเคารพ human approval</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="footer card">
+      <span class="tag">How to read this page</span>
+      <h3>คู่มือสั้น ๆ สำหรับการอ่าน New DFD</h3>
+      <p>ถ้าคุณอยากรู้ว่า “ตอนนี้ระบบเรียกอะไร” ให้เปิดหน้า Legacy DFD. ถ้าคุณอยากรู้ว่า “wave นี้เปลี่ยนอะไรและมันต่างจาก wave ก่อนหน้าอย่างไร” ให้ใช้หน้า New DFD blueprint นี้เป็นหลัก. ทั้งสองหน้าถูกตั้งใจให้ทำงานคู่กัน: หน้าเดิมสำหรับ runtime flow, หน้าใหม่สำหรับ evolution story.</p>
+      <div class="footer-actions">
+        <a class="btn primary" href="./index.html">Back to Legacy DFD</a>
+        <a class="btn" href="./index.html#p5">Open Update Log</a>
+      </div>
+    </section>
   </div>
-
-  <script>
-    (async () => {
-      try {
-        const response = await fetch('./index.html', { cache: 'no-store' });
-        if (!response.ok) {
-          throw new Error(`Failed to load main page: ${response.status}`);
-        }
-
-        const html = await response.text();
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-
-        doc.title = 'Quantum Tick Scalper v2.0 — New DFD';
-
-        const versionBadge = doc.getElementById('versionBadge');
-        if (versionBadge) {
-          versionBadge.textContent = 'NEW DFD';
-        }
-
-        const pageLink = doc.querySelector('[data-page-link="new-dfd"]');
-        if (pageLink) {
-          pageLink.setAttribute('href', './index.html');
-          pageLink.textContent = 'Main DFD';
-          pageLink.setAttribute('aria-label', 'Return to the main DFD page');
-          pageLink.removeAttribute('data-page-link');
-        }
-
-        const bootMeta = doc.createElement('meta');
-        bootMeta.setAttribute('name', 'qts-page');
-        bootMeta.setAttribute('content', 'new-dfd');
-        doc.head.appendChild(bootMeta);
-
-        const clonedHtml = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
-        document.open();
-        document.write(clonedHtml);
-        document.close();
-      } catch (error) {
-        const bootShell = document.getElementById('bootShell');
-        if (bootShell) {
-          bootShell.innerHTML = `
-            <div class="boot-card">
-              <p class="boot-kicker">Quantum Tick Scalper</p>
-              <h1 class="boot-title"><em>New DFD</em> unavailable</h1>
-              <p class="boot-copy">${String(error && error.message ? error.message : 'Unable to clone the main page right now.')}</p>
-              <div class="boot-links">
-                <a class="boot-link" href="./index.html">Back to Main DFD</a>
-              </div>
-            </div>
-          `;
-        }
-      }
-    })();
-  </script>
 </body>
 </html>
