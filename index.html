@@ -799,6 +799,89 @@ tr:last-child td { border-bottom:none; }
   grid-template-columns:minmax(0, 1.7fr) minmax(280px, .85fr);
   gap:20px;
 }
+.update-log-filter {
+  margin:16px 0 18px;
+  padding:16px;
+  border:1px solid var(--border2);
+  border-radius:14px;
+  background:linear-gradient(180deg, rgba(32,25,16,.9) 0%, rgba(20,16,10,.78) 100%);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.update-log-filter__row {
+  display:flex;
+  align-items:flex-end;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.update-log-search {
+  flex:1 1 320px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.update-log-search span {
+  font-family:var(--font-mn);
+  font-size:11px;
+  letter-spacing:1px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+.update-log-search input {
+  width:100%;
+  min-height:44px;
+  padding:0 14px;
+  border:1px solid var(--border2);
+  border-radius:12px;
+  background:rgba(23,18,9,.92);
+  color:var(--text);
+  font-family:var(--font-bd);
+  font-size:15px;
+  outline:none;
+  transition:border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.update-log-search input::placeholder { color:var(--muted); }
+.update-log-search input:focus {
+  border-color:rgba(82,120,152,.58);
+  box-shadow:0 0 0 3px rgba(82,120,152,.12);
+}
+.update-log-filter-pills {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.update-log-filter-chip {
+  min-height:36px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid rgba(82,120,152,.24);
+  background:rgba(82,120,152,.08);
+  color:var(--text);
+  font-family:var(--font-mn);
+  font-size:11px;
+  letter-spacing:1.1px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:transform .2s ease, border-color .2s ease, background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.update-log-filter-chip:hover {
+  transform:translateY(-1px);
+  border-color:rgba(82,120,152,.5);
+  box-shadow:0 0 18px rgba(82,120,152,.08);
+}
+.update-log-filter-chip.active {
+  border-color:rgba(200,148,42,.55);
+  background:rgba(200,148,42,.15);
+  color:var(--amber3);
+  box-shadow:0 0 0 1px rgba(200,148,42,.08);
+}
+.update-log-filter-hint {
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.6;
+}
 .update-side-stack { display:flex; flex-direction:column; gap:20px; }
 .update-log-feed { display:flex; flex-direction:column; gap:18px; }
 .update-log-empty {
@@ -1173,6 +1256,13 @@ body.admin-open { overflow:hidden; }
   .admin-modal__grid { grid-template-columns:1fr; }
 }
 @media(max-width:760px) {
+  .update-log-filter__row {
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .update-log-filter-clear {
+    width:100%;
+  }
   header {
     padding:28px 20px 22px;
     flex-direction:column;
@@ -1702,16 +1792,33 @@ body.admin-open { overflow:hidden; }
 <!-- ═══════════ UPDATE LOG ═══════════ -->
 <div class="layer-panel" id="p5" role="tabpanel" tabindex="0">
   <div class="layer-hd"><h2>📝 Update <span style="color:var(--slate2)">Log</span></h2></div>
-  <p class="layer-desc">Persistent release notes for this viewer with Markdown rendering, secret editor access, and new-update popup alerts.</p>
+  <p class="layer-desc">Saved release notes with simple Markdown preview, hidden editor access, and popup alerts for new updates.</p>
   <div class="meta-row">
-    <div class="meta-tag"><b>FORMAT</b> Markdown render + live preview</div>
-    <div class="meta-tag"><b>STORAGE</b> Browser persistent storage</div>
-    <div class="meta-tag"><b>ALERT</b> Popup shortcut to this tab</div>
+    <div class="meta-tag"><b>FORMAT</b> Markdown + live preview</div>
+    <div class="meta-tag"><b>STORAGE</b> Saved in this browser</div>
+    <div class="meta-tag"><b>ALERT</b> New note popup</div>
   </div>
   <div class="update-log-layout">
     <div class="card" style="--card-accent:var(--slate2)">
       <h3>Release Feed</h3>
-      <div class="update-log-empty" id="updateLogEmpty">No update log has been saved yet. Unlock the hidden editor to publish the first release note.</div>
+      <div class="update-log-filter" role="search" aria-label="Filter release notes">
+        <div class="update-log-filter__row">
+          <label class="update-log-search" for="updateLogFilterInput">
+            <span>Search updates</span>
+            <input id="updateLogFilterInput" type="search" autocomplete="off" placeholder="Search title, version, or text">
+          </label>
+          <button class="ghost-btn update-log-filter-clear" id="clearUpdateLogFilter" type="button">Clear</button>
+        </div>
+        <div class="update-log-filter-pills" aria-label="Quick update filters">
+          <button class="update-log-filter-chip active" type="button" data-update-log-filter="all">All</button>
+          <button class="update-log-filter-chip" type="button" data-update-log-filter="wave">Wave</button>
+          <button class="update-log-filter-chip" type="button" data-update-log-filter="hotfix">Hotfix</button>
+          <button class="update-log-filter-chip" type="button" data-update-log-filter="test">Tests</button>
+          <button class="update-log-filter-chip" type="button" data-update-log-filter="roadmap">Roadmap</button>
+        </div>
+        <p class="update-log-filter-hint" id="updateLogFilterHint">Showing all entries.</p>
+      </div>
+      <div class="update-log-empty" id="updateLogEmpty">Nothing to show yet. Open the hidden editor to publish the first note.</div>
       <div class="update-log-feed" id="updateLogFeed"></div>
     </div>
     <div class="update-side-stack">
@@ -1719,12 +1826,12 @@ body.admin-open { overflow:hidden; }
         <h3>Viewer Status</h3>
         <div class="update-summary" id="updateSummary"></div>
         <button class="ghost-btn" id="openEditorInline" type="button" hidden>Open Secret Editor</button>
-        <p class="update-note">Click <b>VERSION 2.0</b> five times to reveal the hidden editor for changelog publishing and soundtrack settings.</p>
+        <p class="update-note">Click <b>VERSION 2.0</b> five times to open the hidden editor for writing updates and changing the soundtrack.</p>
       </div>
       <div class="card" style="--card-accent:var(--sage)">
         <h3>Soundtrack</h3>
         <div class="update-summary" id="audioSummary"></div>
-        <p class="update-note">Playback is armed on the first click or key press anywhere on the page and then loops through the saved playlist automatically.</p>
+        <p class="update-note">Audio starts after your first click or key press, then loops the saved playlist automatically.</p>
       </div>
     </div>
   </div>
@@ -1843,6 +1950,10 @@ const playlistInput = document.getElementById('playlistInput');
 const savePlaylistButton = document.getElementById('savePlaylistButton');
 const updateLogFeed = document.getElementById('updateLogFeed');
 const updateLogEmpty = document.getElementById('updateLogEmpty');
+const updateLogFilterInput = document.getElementById('updateLogFilterInput');
+const updateLogFilterHint = document.getElementById('updateLogFilterHint');
+const clearUpdateLogFilterButton = document.getElementById('clearUpdateLogFilter');
+const updateLogFilterButtons = [...document.querySelectorAll('[data-update-log-filter]')];
 const updateSummary = document.getElementById('updateSummary');
 const audioSummary = document.getElementById('audioSummary');
 const soundtrackPlayer = document.getElementById('soundtrackPlayer');
@@ -1871,7 +1982,9 @@ const state = {
   logs: loadLogs(),
   playlist: loadPlaylist(),
   audioResumeAttempts: 0,
-  seedHydrated: false
+  seedHydrated: false,
+  updateLogSearch: '',
+  updateLogPreset: 'all'
 };
 
 const SEED_FEED_URL = './updates.json';
@@ -2062,8 +2175,98 @@ function setPreviewContent(text) {
   logPreview.innerHTML = renderMarkdown(text || 'No content yet.');
 }
 
+function normalizeUpdateLogText(value) {
+  return String(value || '').toLowerCase();
+}
+
 function getLatestLog() {
   return state.logs[0] || null;
+}
+
+function matchesUpdateLogPreset(log, preset) {
+  if (preset === 'all') {
+    return true;
+  }
+
+  const haystack = normalizeUpdateLogText([log.id, log.version, log.title, log.body].join(' '));
+
+  switch (preset) {
+    case 'wave':
+      return haystack.includes('wave');
+    case 'hotfix':
+      return haystack.includes('hotfix') || haystack.includes('quick fix');
+    case 'test':
+      return haystack.includes('test') || haystack.includes('validation') || haystack.includes('compile');
+    case 'roadmap':
+      return haystack.includes('roadmap') || haystack.includes('closure') || haystack.includes('complete');
+    default:
+      return true;
+  }
+}
+
+function matchesUpdateLogSearch(log, query) {
+  if (!query) {
+    return true;
+  }
+
+  const haystack = normalizeUpdateLogText([log.id, log.version, log.title, log.body].join(' '));
+  const terms = query.split(/\s+/).filter(Boolean);
+  return terms.every(term => haystack.includes(term));
+}
+
+function getVisibleUpdateLogs() {
+  const sortedLogs = state.logs.slice().sort(sortByNewest);
+  const query = normalizeUpdateLogText(state.updateLogSearch).trim();
+  return sortedLogs.filter(log => matchesUpdateLogPreset(log, state.updateLogPreset) && matchesUpdateLogSearch(log, query));
+}
+
+function syncUpdateLogFilterUI(visibleCount, totalCount) {
+  if (updateLogFilterInput && updateLogFilterInput.value !== state.updateLogSearch) {
+    updateLogFilterInput.value = state.updateLogSearch;
+  }
+
+  updateLogFilterButtons.forEach(button => {
+    const isActive = button.dataset.updateLogFilter === state.updateLogPreset;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
+
+  if (!updateLogFilterHint) {
+    return;
+  }
+
+  if (totalCount === 0) {
+    updateLogFilterHint.textContent = 'No entries yet. Open the hidden editor to publish the first note.';
+    return;
+  }
+
+  const query = state.updateLogSearch.trim();
+  if (visibleCount === totalCount && !query && state.updateLogPreset === 'all') {
+    updateLogFilterHint.textContent = `Showing all ${totalCount} entries.`;
+    return;
+  }
+
+  if (visibleCount === 0) {
+    updateLogFilterHint.textContent = 'No matches. Try another keyword or press Clear.';
+    return;
+  }
+
+  const filterLabels = {
+    wave: 'Wave entries',
+    hotfix: 'Hotfix entries',
+    test: 'Test entries',
+    roadmap: 'Roadmap entries'
+  };
+
+  const summaryParts = [`Showing ${visibleCount} of ${totalCount} entries`];
+  if (state.updateLogPreset !== 'all') {
+    summaryParts.push(filterLabels[state.updateLogPreset] || state.updateLogPreset);
+  }
+  if (query) {
+    summaryParts.push(`Search: “${query}”`);
+  }
+
+  updateLogFilterHint.textContent = summaryParts.join(' · ');
 }
 
 function getLastSeenId() {
@@ -2075,7 +2278,7 @@ function markLatestSeen() {
   if (!latest) return;
   sessionStateStorage.setItem(STORAGE_KEYS.lastSeen, latest.id);
   hideToast();
-  renderStatusSummary();
+  renderStatusSummary(getVisibleUpdateLogs().length);
 }
 
 function show(i) {
@@ -2320,13 +2523,15 @@ function updateAudioSummary(message = '') {
   `;
 }
 
-function renderStatusSummary() {
+function renderStatusSummary(visibleCount = state.logs.length) {
   const latest = getLatestLog();
+  const totalCount = state.logs.length;
+  const entriesLabel = visibleCount === totalCount ? `${totalCount}` : `${visibleCount} / ${totalCount}`;
 
   if (!latest) {
     updateSummary.innerHTML = `
       <div class="status-line"><span class="status-k">Latest</span><b>No release yet</b></div>
-      <div class="status-line"><span class="status-k">Entries</span><b>0</b></div>
+      <div class="status-line"><span class="status-k">Entries</span><b>${entriesLabel}</b></div>
       <div class="status-line"><span class="status-k">Storage</span><b>${persistentStorage.available ? 'Persistent in browser' : 'Fallback memory only'}</b></div>
       <div class="status-line"><span class="status-k">Popup</span><b>Waiting for the first saved update</b></div>
     `;
@@ -2336,6 +2541,7 @@ function renderStatusSummary() {
 
   updateSummary.innerHTML = `
     <div class="status-line"><span class="status-k">Latest</span><b>${escapeHtml(latest.title)}</b></div>
+    <div class="status-line"><span class="status-k">Entries</span><b>${entriesLabel}</b></div>
     <div class="status-line"><span class="status-k">Version</span><b>${escapeHtml(latest.version || 'Custom')}</b></div>
     <div class="status-line"><span class="status-k">Published</span><b>${escapeHtml(formatDate(latest.createdAt))}</b></div>
     <div class="status-line"><span class="status-k">Popup</span><b>${getLastSeenId() === latest.id ? 'Already seen in this tab' : 'Unread update detected'}</b></div>
@@ -2346,10 +2552,20 @@ function renderStatusSummary() {
 
 function renderUpdateLog() {
   state.logs = state.logs.slice().sort(sortByNewest);
+  const visibleLogs = getVisibleUpdateLogs();
   updateLogFeed.innerHTML = '';
-  updateLogEmpty.hidden = state.logs.length > 0;
+  syncUpdateLogFilterUI(visibleLogs.length, state.logs.length);
 
-  state.logs.forEach((log, index) => {
+  if (visibleLogs.length === 0) {
+    updateLogEmpty.hidden = false;
+    updateLogEmpty.textContent = state.logs.length === 0
+      ? 'Nothing to show yet. Open the hidden editor to publish the first note.'
+      : 'No entries match this filter. Try another keyword or press Clear.';
+  } else {
+    updateLogEmpty.hidden = true;
+  }
+
+  visibleLogs.forEach((log, index) => {
     const entry = document.createElement('article');
     entry.className = 'update-entry';
     if (index === 0) {
@@ -2380,7 +2596,7 @@ function renderUpdateLog() {
     });
   });
 
-  renderStatusSummary();
+  renderStatusSummary(visibleLogs.length);
   syncToastState();
 }
 
@@ -2533,6 +2749,34 @@ exportJsonButton.addEventListener('click', () => {
   }
   downloadUpdatesJson();
   showNotice('updates.json downloaded. Commit it to the Log-update repo.');
+});
+
+if (updateLogFilterInput) {
+  updateLogFilterInput.addEventListener('input', () => {
+    state.updateLogSearch = updateLogFilterInput.value;
+    renderUpdateLog();
+  });
+}
+
+if (clearUpdateLogFilterButton) {
+  clearUpdateLogFilterButton.addEventListener('click', () => {
+    state.updateLogSearch = '';
+    state.updateLogPreset = 'all';
+    if (updateLogFilterInput) {
+      updateLogFilterInput.value = '';
+    }
+    renderUpdateLog();
+    if (updateLogFilterInput) {
+      updateLogFilterInput.focus();
+    }
+  });
+}
+
+updateLogFilterButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    state.updateLogPreset = button.dataset.updateLogFilter || 'all';
+    renderUpdateLog();
+  });
 });
 
 toastDismissButton.addEventListener('click', () => {

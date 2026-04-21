@@ -1,14 +1,21 @@
 {
   "$schema": "./updates.schema.json",
-  "generated_at": "2026-04-21T20:44:00+07:00",
+  "generated_at": "2026-04-21T21:09:00+07:00",
   "source_repo": "quantumv2 (private)",
-  "notes": "Canonical changelog feed. Loaded by index.html via loadLogsWithSeed() on every boot, merged with any existing browser drafts, and sorted newest-first before render.",
+  "notes": "Canonical changelog feed. The viewer loads this file on boot, merges any saved drafts, and sorts newest first before render.",
   "entries": [
+    {
+      "id": "log-2026-04-21-003",
+      "version": "2.7.3-wave1-hotfix",
+      "title": "Quick fix: lot sizing fixed, all tests passed",
+      "body": "# Quick fix\n\nวันที่: 21 เม.ย. 2026\n\nปรับการปัด lot ให้ตรงกับ step ของโบรกมากขึ้น แล้วลองรัน TestRunner อีกครั้ง\n\n## What changed\n- ปรับ `QTSNormalizeLotToStep` ให้ปัดบน step grid โดยตรง\n- แก้เคส `normalize_exact_step_is_idempotent` จาก 0.51 กลับมาเป็น 0.50\n\n## Result\n- MT5 TestRunner: 29/29 passed\n- EA compile: 0 errors, 0 warnings\n- TestRunner compile: 0 errors, 0 warnings",
+      "createdAt": "2026-04-21T21:06:00+07:00"
+    },
     {
       "id": "log-2026-04-21-002",
       "version": "2.7.2-wave1-hotfix",
-      "title": "Quick fix: ปิดบัค Partial TP + Gap Guard (Wave 1)",
-      "body": "# Patch Notes (Quick Fix)\n\nวันที่: 21 เม.ย. 2026\n\nแก้บัคเล็กแต่กระทบการเทรดจริง 2 จุด เพื่อให้ Wave 1 ทำงานนิ่งขึ้นโดยไม่เปลี่ยนแนวทางระบบเดิม\n\n## 1) แก้บัค PositionGovernor ตอนปิดบางส่วน (partial close)\n\n**อาการเดิม**\n- เมื่อมีดีล `DEAL_ENTRY_OUT` ระบบลบ ladder state ทันที\n- กรณีปิดบางส่วน state หายก่อนเวลา ทำให้ partial stage มีโอกาสเริ่มซ้ำ\n\n**แก้แล้ว**\n- ล้าง state เฉพาะตอน position ปิดหมดจริงเท่านั้น\n- ถ้ายังมี position ค้างอยู่ จะคง state เดิมไว้ต่อ\n\n**ผลลัพธ์**\n- partial TP / breakeven / trailing ต่อเนื่องตามลำดับเดิม\n- ลดโอกาส trigger partial stage 1 ซ้ำโดยไม่ตั้งใจ\n\n## 2) แก้บัค Gap Guard ให้เช็กช่วงเปิด session เท่านั้น\n\n**อาการเดิม**\n- มีโอกาส mark ว่าเช็กแล้วทั้งที่ข้อมูลราคา/point ยังไม่พร้อม\n- รีสตาร์ตกลางวันอาจตีความ gap ผิดช่วงเวลา\n\n**แก้แล้ว**\n- เพิ่มหน้าต่างเวลาเช็ก gap หลัง session start (window จำกัด)\n- บันทึกว่าเช็กแล้วต่อเมื่อข้อมูลสำคัญพร้อมครบ\n- ใช้ day key แบบปี+day_of_year ให้เสถียรข้ามปี\n\n**ผลลัพธ์**\n- ลด false block / missed check ของ gap guard\n- พฤติกรรมสอดคล้องกับเจตนา session-open gap มากขึ้น\n\n## Files ที่แก้\n- `Experts/QuantumTickScalper.mq5`\n- `Include/QuantumTickScalper/RiskManager.mqh`\n\n## Build check\n- EA compile: 0 errors, 0 warnings\n- TestRunner compile: 0 errors, 0 warnings\n\n> โน้ต: เป็น quick fix เชิงความถูกต้อง ไม่ใช่การเพิ่ม feature ใหม่",
+      "title": "Quick fix: Partial TP and Gap Guard are steadier",
+      "body": "# Quick fix\n\nวันที่: 21 เม.ย. 2026\n\nแก้ 2 จุดที่ทำให้ระบบสะดุดเล็กน้อย เพื่อให้ Wave 1 นิ่งขึ้น\n\n## What changed\n- Partial TP: ปิดบางส่วนแล้วสถานะยังต่อเนื่อง\n- Gap Guard: เช็กจังหวะเปิดตลาดให้แม่นขึ้น\n\n## Result\n- การทยอยปิดไม้ลื่นขึ้น\n- ลดโอกาสเข้าไม้ผิดจังหวะตอนตลาดเปิด\n- พฤติกรรมหลักของระบบยังเหมือนเดิม",
       "createdAt": "2026-04-21T20:44:00+07:00"
     },
     {
