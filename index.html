@@ -415,6 +415,18 @@ header {
   transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease;
 }
 .header-badge:hover { transform: translateY(-1px); }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.header-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
 .header-badge.is-unlocked {
   border-color: var(--amber2);
   box-shadow: 0 0 24px rgba(240,195,70,.18), inset 0 0 0 1px rgba(255,225,145,.1);
@@ -1166,6 +1178,10 @@ body.admin-open { overflow:hidden; }
     flex-direction:column;
     align-items:flex-start;
   }
+  .header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
   .tabs { padding:0 20px; }
   main { padding:28px 20px 40px; }
   .secret-admin-btn,
@@ -1230,7 +1246,10 @@ body.admin-open { overflow:hidden; }
     <h1>Quantum Tick Scalper &mdash; <em>DFD Reference</em></h1>
     <p>DATA FLOW DIAGRAM &middot; LEVEL 2 &middot; XAUUSD EXPERT ADVISOR</p>
   </div>
-  <div class="header-badge" id="versionBadge">VERSION 2.0</div>
+  <div class="header-actions">
+    <div class="header-badge" id="versionBadge">VERSION 2.0</div>
+    <a class="header-badge header-link" href="./new-dfd.html" data-page-link="new-dfd" aria-label="Open New DFD page">New DFD</a>
+  </div>
 </header>
 <div class="deco-line"></div>
 

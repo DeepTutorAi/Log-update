@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Tick Scalper v2.0 — New DFD</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0f0c07;
+    --bg2: #171209;
+    --bg3: #1e1810;
+    --border: #302618;
+    --text: #e2d4b8;
+    --muted: #6a5c48;
+    --amber: #c8942a;
+    --amber2: #e0aa3c;
+    --cream: #c8a870;
+    --font-hd: 'Playfair Display', Georgia, serif;
+    --font-bd: 'Crimson Pro', Georgia, serif;
+    --font-mn: 'DM Mono', 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(200,148,42,.05) 0%, transparent 65%),
+      linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+    color: var(--text);
+    font-family: var(--font-bd);
+  }
+
+  .boot-shell {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 32px;
+    text-align: center;
+  }
+
+  .boot-card {
+    width: min(640px, 100%);
+    padding: 28px 24px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: rgba(23, 18, 9, 0.86);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(8px);
+  }
+
+  .boot-kicker {
+    margin: 0 0 10px;
+    font-family: var(--font-mn);
+    color: var(--muted);
+    letter-spacing: 0.22em;
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  .boot-title {
+    margin: 0;
+    font-family: var(--font-hd);
+    font-size: clamp(28px, 5vw, 44px);
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  .boot-title em {
+    color: var(--amber2);
+    font-style: italic;
+  }
+
+  .boot-copy {
+    margin: 16px 0 0;
+    color: var(--cream);
+    font-size: 18px;
+    line-height: 1.7;
+  }
+
+  .boot-status {
+    margin: 18px auto 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(224, 170, 60, 0.32);
+    background: rgba(38, 32, 21, 0.72);
+    font-family: var(--font-mn);
+    font-size: 12px;
+    color: var(--amber2);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--amber2);
+    box-shadow: 0 0 12px rgba(224, 170, 60, 0.75);
+    animation: pulse 1.3s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(0.8); opacity: 0.6; }
+    50% { transform: scale(1.15); opacity: 1; }
+  }
+
+  .boot-links {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .boot-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(224, 170, 60, 0.28);
+    background: rgba(38, 32, 21, 0.8);
+    color: var(--text);
+    text-decoration: none;
+    font-family: var(--font-mn);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .boot-link:hover {
+    transform: translateY(-1px);
+    border-color: rgba(224, 170, 60, 0.56);
+    box-shadow: 0 0 20px rgba(224, 170, 60, 0.12);
+  }
+
+  noscript {
+    display: block;
+    margin-top: 14px;
+    color: #d7c8a8;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+  <div class="boot-shell" id="bootShell">
+    <div class="boot-card">
+      <p class="boot-kicker">Quantum Tick Scalper</p>
+      <h1 class="boot-title">Loading <em>New DFD</em></h1>
+      <p class="boot-copy">Preparing the cloned DFD reference so the original page stays intact.</p>
+      <div class="boot-status"><span class="dot"></span> Cloning main page</div>
+      <div class="boot-links">
+        <a class="boot-link" href="./index.html">Open Main DFD</a>
+      </div>
+      <noscript>
+        JavaScript is required for the cloned page shell. You can still open the original page using the link above.
+      </noscript>
+    </div>
+  </div>
+
+  <script>
+    (async () => {
+      try {
+        const response = await fetch('./index.html', { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`Failed to load main page: ${response.status}`);
+        }
+
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+
+        doc.title = 'Quantum Tick Scalper v2.0 — New DFD';
+
+        const versionBadge = doc.getElementById('versionBadge');
+        if (versionBadge) {
+          versionBadge.textContent = 'NEW DFD';
+        }
+
+        const pageLink = doc.querySelector('[data-page-link="new-dfd"]');
+        if (pageLink) {
+          pageLink.setAttribute('href', './index.html');
+          pageLink.textContent = 'Main DFD';
+          pageLink.setAttribute('aria-label', 'Return to the main DFD page');
+          pageLink.removeAttribute('data-page-link');
+        }
+
+        const bootMeta = doc.createElement('meta');
+        bootMeta.setAttribute('name', 'qts-page');
+        bootMeta.setAttribute('content', 'new-dfd');
+        doc.head.appendChild(bootMeta);
+
+        const clonedHtml = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+        document.open();
+        document.write(clonedHtml);
+        document.close();
+      } catch (error) {
+        const bootShell = document.getElementById('bootShell');
+        if (bootShell) {
+          bootShell.innerHTML = `
+            <div class="boot-card">
+              <p class="boot-kicker">Quantum Tick Scalper</p>
+              <h1 class="boot-title"><em>New DFD</em> unavailable</h1>
+              <p class="boot-copy">${String(error && error.message ? error.message : 'Unable to clone the main page right now.')}</p>
+              <div class="boot-links">
+                <a class="boot-link" href="./index.html">Back to Main DFD</a>
+              </div>
+            </div>
+          `;
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
