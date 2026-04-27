@@ -902,6 +902,39 @@ tr:last-child td { border-bottom:none; }
   border-color:rgba(82,120,152,.5);
   box-shadow:var(--shadow-md), 0 0 0 1px rgba(82,120,152,.18);
 }
+.update-entry { cursor:pointer; }
+.update-entry.is-unread {
+  border-left:3px solid var(--amber2);
+  box-shadow:var(--shadow-sm), 0 0 24px rgba(245,200,90,.08);
+}
+.update-entry.is-unread.latest {
+  box-shadow:var(--shadow-md), 0 0 0 1px rgba(82,120,152,.18), 0 0 24px rgba(245,200,90,.10);
+}
+.update-entry__new-pill {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:2px 10px; border-radius:999px;
+  background:linear-gradient(135deg, rgba(245,200,90,.95), rgba(230,170,55,.85));
+  color:#1a1208;
+  font-family:var(--font-mn);
+  font-size:10px; letter-spacing:1.5px; font-weight:700;
+  text-transform:uppercase;
+  box-shadow:0 0 12px rgba(245,200,90,.4);
+  animation:newPulse 2s ease-in-out infinite;
+}
+@keyframes newPulse {
+  0%,100% { box-shadow:0 0 12px rgba(245,200,90,.4); }
+  50%     { box-shadow:0 0 20px rgba(245,200,90,.7); }
+}
+.update-log-filter__actions {
+  display:flex; align-items:center; gap:12px;
+  margin-top:8px;
+  font-family:var(--font-mn);
+  font-size:11px;
+  color:var(--muted);
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.update-log-filter__actions[hidden] { display:none; }
 .update-entry h3 {
   font-family:var(--font-hd);
   font-size:24px;
@@ -1811,12 +1844,20 @@ body.admin-open { overflow:hidden; }
         </div>
         <div class="update-log-filter-pills" aria-label="Quick update filters">
           <button class="update-log-filter-chip active" type="button" data-update-log-filter="all">All</button>
-          <button class="update-log-filter-chip" type="button" data-update-log-filter="wave">Wave</button>
+          <button class="update-log-filter-chip" type="button" data-update-log-filter="unread">NEW</button>
+          <button class="update-log-filter-chip" type="button" data-update-log-filter="wave1">Wave 1</button>
+          <button class="update-log-filter-chip" type="button" data-update-log-filter="wave2">Wave 2</button>
+          <button class="update-log-filter-chip" type="button" data-update-log-filter="wave3">Wave 3</button>
+          <button class="update-log-filter-chip" type="button" data-update-log-filter="wave4">Wave 4</button>
           <button class="update-log-filter-chip" type="button" data-update-log-filter="hotfix">Hotfix</button>
           <button class="update-log-filter-chip" type="button" data-update-log-filter="test">Tests</button>
           <button class="update-log-filter-chip" type="button" data-update-log-filter="roadmap">Roadmap</button>
         </div>
         <p class="update-log-filter-hint" id="updateLogFilterHint">Showing all entries.</p>
+        <div class="update-log-filter__actions" id="updateLogFilterActions" hidden>
+          <span id="updateLogUnreadCount">0 unread</span>
+          <button class="ghost-btn" id="markAllReadBtn" type="button">Mark all as read</button>
+        </div>
       </div>
       <div class="update-log-empty" id="updateLogEmpty">Nothing to show yet. Open the hidden editor to publish the first note.</div>
       <div class="update-log-feed" id="updateLogFeed"></div>
@@ -1920,7 +1961,8 @@ const STORAGE_KEYS = {
   logs: 'qts_update_logs',
   playlist: 'qts_soundtrack_playlist',
   draft: 'qts_update_draft',
-  lastSeen: 'qts_last_seen_update'
+  lastSeen: 'qts_last_seen_update',
+  readMap: 'qts_log_read_map'
 };
 
 const SOUNDTRACK_VOLUME = 0.56;
@@ -1954,6 +1996,9 @@ const updateLogFilterInput = document.getElementById('updateLogFilterInput');
 const updateLogFilterHint = document.getElementById('updateLogFilterHint');
 const clearUpdateLogFilterButton = document.getElementById('clearUpdateLogFilter');
 const updateLogFilterButtons = [...document.querySelectorAll('[data-update-log-filter]')];
+const updateLogFilterActions = document.getElementById('updateLogFilterActions');
+const updateLogUnreadCountEl = document.getElementById('updateLogUnreadCount');
+const markAllReadBtn = document.getElementById('markAllReadBtn');
 const updateSummary = document.getElementById('updateSummary');
 const audioSummary = document.getElementById('audioSummary');
 const soundtrackPlayer = document.getElementById('soundtrackPlayer');
@@ -1984,7 +2029,8 @@ const state = {
   audioResumeAttempts: 0,
   seedHydrated: false,
   updateLogSearch: '',
-  updateLogPreset: 'all'
+  updateLogPreset: 'all',
+  readMap: {}
 };
 
 const SEED_FEED_URL = './updates.json';
@@ -2188,6 +2234,20 @@ function matchesUpdateLogPreset(log, preset) {
     return true;
   }
 
+  if (preset === 'unread') {
+    return !isLogRead(log.id);
+  }
+
+  const waveMatch = preset.match(/^wave([1-4])$/);
+  if (waveMatch) {
+    const n = Number(waveMatch[1]);
+    if (typeof log.wave === 'number') {
+      return log.wave === n;
+    }
+    const idText = normalizeUpdateLogText(String(log.id || ''));
+    return idText.includes('wave' + n);
+  }
+
   const haystack = normalizeUpdateLogText([log.id, log.version, log.title, log.body].join(' '));
 
   switch (preset) {
@@ -2202,6 +2262,68 @@ function matchesUpdateLogPreset(log, preset) {
     default:
       return true;
   }
+}
+
+function loadReadMap() {
+  const raw = persistentStorage.getItem(STORAGE_KEYS.readMap);
+  const parsed = safeParse(raw, {});
+  return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+}
+
+function saveReadMap(map) {
+  persistentStorage.setItem(STORAGE_KEYS.readMap, JSON.stringify(map || {}));
+}
+
+function isLogRead(id) {
+  return Boolean(id && state.readMap[id]);
+}
+
+function markLogRead(id) {
+  if (!id || state.readMap[id]) return;
+  state.readMap[id] = new Date().toISOString();
+  saveReadMap(state.readMap);
+  renderUpdateLog();
+}
+
+function markAllVisibleRead() {
+  const visible = getVisibleUpdateLogs();
+  let touched = false;
+  const stamp = new Date().toISOString();
+  visible.forEach(log => {
+    if (log && log.id && !state.readMap[log.id]) {
+      state.readMap[log.id] = stamp;
+      touched = true;
+    }
+  });
+  if (touched) {
+    saveReadMap(state.readMap);
+    renderUpdateLog();
+  }
+}
+
+function unreadCount() {
+  return state.logs.reduce((acc, log) => acc + (isLogRead(log && log.id) ? 0 : 1), 0);
+}
+
+function migrateReadMapFromLastSeen() {
+  if (Object.keys(state.readMap).length > 0) return;
+  if (!Array.isArray(state.logs) || state.logs.length === 0) return;
+  const lastSeenId = getLastSeenId();
+  if (!lastSeenId) return;
+  const latestId = state.logs[0] && state.logs[0].id;
+  const stamp = new Date().toISOString();
+  let touched = false;
+  state.logs.forEach(log => {
+    if (!log || !log.id) return;
+    if (log.id !== latestId) {
+      state.readMap[log.id] = stamp;
+      touched = true;
+    } else if (log.id === lastSeenId) {
+      state.readMap[log.id] = stamp;
+      touched = true;
+    }
+  });
+  if (touched) saveReadMap(state.readMap);
 }
 
 function matchesUpdateLogSearch(log, query) {
@@ -2252,7 +2374,12 @@ function syncUpdateLogFilterUI(visibleCount, totalCount) {
   }
 
   const filterLabels = {
+    unread: 'Unread entries',
     wave: 'Wave entries',
+    wave1: 'Wave 1 entries',
+    wave2: 'Wave 2 entries',
+    wave3: 'Wave 3 entries',
+    wave4: 'Wave 4 entries',
     hotfix: 'Hotfix entries',
     test: 'Test entries',
     roadmap: 'Roadmap entries'
@@ -2571,9 +2698,18 @@ function renderUpdateLog() {
     if (index === 0) {
       entry.classList.add('latest');
     }
+    const unread = !isLogRead(log.id);
+    if (unread) {
+      entry.classList.add('is-unread');
+    }
+    entry.dataset.logId = log.id;
+    entry.setAttribute('role', 'button');
+    entry.setAttribute('tabindex', '0');
+    entry.setAttribute('aria-label', (unread ? 'Unread update: ' : 'Update: ') + (log.title || 'Untitled update'));
 
     entry.innerHTML = `
       <div class="update-entry__meta">
+        ${unread ? '<span class="update-entry__new-pill">New</span>' : ''}
         <span class="update-chip">${escapeHtml(log.version || 'Custom')}</span>
         <span>${escapeHtml(formatDate(log.createdAt))}</span>
         ${state.adminUnlocked ? `<button class="ghost-btn entry-delete-btn" data-log-id="${escapeHtml(log.id)}" type="button" aria-label="Delete this entry">Delete</button>` : ''}
@@ -2582,11 +2718,24 @@ function renderUpdateLog() {
       <div class="markdown-body">${renderMarkdown(log.body)}</div>
     `;
 
+    entry.addEventListener('click', event => {
+      if (event.target.closest('.entry-delete-btn')) return;
+      if (event.target.closest('a')) return;
+      markLogRead(log.id);
+    });
+    entry.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        markLogRead(log.id);
+      }
+    });
+
     updateLogFeed.appendChild(entry);
   });
 
   updateLogFeed.querySelectorAll('.entry-delete-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', event => {
+      event.stopPropagation();
       if (confirm('Delete this log entry? This cannot be undone.')) {
         state.logs = state.logs.filter(l => l.id !== btn.dataset.logId);
         persistentStorage.setItem(STORAGE_KEYS.logs, JSON.stringify(state.logs));
@@ -2596,8 +2745,20 @@ function renderUpdateLog() {
     });
   });
 
+  syncUnreadToolbar();
   renderStatusSummary(visibleLogs.length);
   syncToastState();
+}
+
+function syncUnreadToolbar() {
+  if (!updateLogFilterActions || !updateLogUnreadCountEl) return;
+  const count = unreadCount();
+  if (count <= 0) {
+    updateLogFilterActions.hidden = true;
+    return;
+  }
+  updateLogFilterActions.hidden = false;
+  updateLogUnreadCountEl.textContent = count + (count === 1 ? ' unread' : ' unread');
 }
 
 function showToast(log) {
@@ -2779,6 +2940,12 @@ updateLogFilterButtons.forEach(button => {
   });
 });
 
+if (markAllReadBtn) {
+  markAllReadBtn.addEventListener('click', () => {
+    markAllVisibleRead();
+  });
+}
+
 toastDismissButton.addEventListener('click', () => {
   markLatestSeen();
 });
@@ -2830,6 +2997,11 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('storage', event => {
   if (event.key === STORAGE_KEYS.logs) {
     state.logs = loadLogs();
+    renderUpdateLog();
+  }
+
+  if (event.key === STORAGE_KEYS.readMap) {
+    state.readMap = loadReadMap();
     renderUpdateLog();
   }
 
@@ -2927,6 +3099,8 @@ window.addEventListener('resize', debounce(generateDustParticles, 300));
 updateAdminVisibility();
 closeAdminModal();
 hideToast();
+state.readMap = loadReadMap();
+migrateReadMapFromLastSeen();
 renderUpdateLog();
 setPreviewContent('');
 primeSoundtrackAutoplay();
@@ -2939,6 +3113,7 @@ primeSoundtrackAutoplay();
   if (!state.seedHydrated) return;
   if (seeded.length === 0) return;
   state.logs = seeded;
+  migrateReadMapFromLastSeen();
   renderUpdateLog();
 })();
 </script>
